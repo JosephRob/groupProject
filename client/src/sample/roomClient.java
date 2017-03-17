@@ -11,8 +11,14 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.omg.PortableInterceptor.INACTIVE;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Created by lex on 16/03/17.
@@ -22,6 +28,7 @@ public class roomClient implements  Runnable{
     String IP,userID;
     boolean left,right,up,down;
     int x,y,v,size;
+    double[] color;
 
     @FXML
     private Canvas base;
@@ -32,6 +39,12 @@ public class roomClient implements  Runnable{
         this.userID=username;
         size=50;
 
+        color=new double[3];
+        Random random=new Random(System.currentTimeMillis());
+        for (int x=0;x<3;x++) {
+            color[x] = random.nextDouble();
+            //System.out.println(color[x]);
+        }
         base=new Canvas();
         base.setWidth(400);
         base.setHeight(base.getWidth());
@@ -100,17 +113,43 @@ public class roomClient implements  Runnable{
         while (true) {try {
             while(true) {
                 Thread.sleep(10);
-                Socket socket=new Socket(IP,port);
-
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        GraphicsContext gc = base.getGraphicsContext2D();
+                        String otherUser;
+                        final GraphicsContext gc = base.getGraphicsContext2D();
                         drawBack(gc);
-                        gc.setFill(Color.BLACK);
-                        gc.fillRect(x - size, y - size, size, size);
+                        try {
+                            final Socket socket=new Socket(IP,port);
+                            PrintWriter out=new PrintWriter(socket.getOutputStream());
+                            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                            out.println(userID);
+                            out.println(x);
+                            out.println(y);
+                            for (int x=0;x<3;x++)
+                                out.println(color[x]);
+
+                            out.flush();
+
+                            final Integer[] otherPlace=new Integer[2];
+                            final Double[] otherColor=new Double[3];
+
+                            while ((otherUser = br.readLine()) != null) {
+                                for (int x = 0; x < 2; x++)
+                                    otherPlace[x] = Integer.parseInt(br.readLine());
+                                for (int x = 0; x < 3; x++)
+                                    otherColor[x] = Double.parseDouble(br.readLine());
+                                gc.setFill(new Color(otherColor[0], otherColor[1], otherColor[2], 1));
+                                gc.fillRect(otherPlace[0] - size, otherPlace[1] - size, size, size);
+                                gc.strokeText(otherUser,otherPlace[0]-size,otherPlace[1]+10);
+                            }
+                            socket.close();
+                        }
+                        catch (java.io.IOException e){System.out.println(e);}
                     }
                 });
+
 
                 if (up) {
                     if (y==(int)(3*base.getHeight()/4))
@@ -119,7 +158,11 @@ public class roomClient implements  Runnable{
                 v=v+4;
                 y = y + (int)(((double)v)/10);
                 if (down) {
-                    //i do nothing for now
+                    Random random=new Random(System.currentTimeMillis());
+                    for (int x=0;x<3;x++) {
+                        color[x] = random.nextDouble();
+                        //System.out.println(color[x]);
+                    }
                 }
                 if (left) {
                     x = x - 5;
@@ -136,7 +179,6 @@ public class roomClient implements  Runnable{
                 else if(y>(3*base.getHeight()/4))
                     y=(int)(3*base.getHeight()/4);
 
-                socket.close();
             }
         }catch (Exception e){System.err.println(e);}}
     }

@@ -38,7 +38,7 @@ public class Main extends Application {
         Label IPPrompt=new Label("IP adress");
         final Label answer=new Label();
         final TextField nameBox=new TextField();
-        final TextField IPBox=new TextField("192.168.55.179");//temporary staring value to make testing easier change per server
+        final TextField IPBox=new TextField("localHost");//temporary staring value to make testing easier change per server
         nameBox.setPromptText("username");
         IPBox.setPromptText("IP adress");
         final PasswordField passwordBox=new PasswordField();
@@ -235,6 +235,7 @@ public class Main extends Application {
 
         Stage stage=new Stage();
         stage.setScene(new Scene(base));
+        stage.setTitle(username);
 
         stage.show();
     }

@@ -35,7 +35,7 @@ public class Main {
             }
             System.out.println(adressName);
         }
-        catch (Exception e){}
+        catch (Exception e){System.out.println("localHost");}
 
 
 
