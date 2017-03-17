@@ -208,6 +208,10 @@ public class Main extends Application {
                                 Thread chat = new Thread(new chatClient(selectedCells.getPort(), IP, username));
                                 chat.start();
                                 break;
+                            case "room":
+                                Thread room=new Thread(new roomClient(selectedCells.getPort(), IP, username));
+                                room.start();
+                                break;
                             default:
                                 break;
                         }

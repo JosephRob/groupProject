@@ -175,12 +175,9 @@ public class Main {
         serverMap.put(serverstart,"chat2");
         serverstart++;
 
-        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
-        try{br.readLine();}catch (Exception e){}
-
-        Thread defaultChat3=new Thread(new chat(serverstart));
-        defaultChat3.start();
-        serverMap.put(serverstart,"chat3");
+        Thread defaultRoom1=new Thread(new room(serverstart));
+        defaultRoom1.start();
+        serverMap.put(serverstart,"room1");
         serverstart++;
     }
     private HashMap<String,String> setUsers(){
