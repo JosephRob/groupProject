@@ -1,6 +1,5 @@
 package sample;
 
-import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextArea;
@@ -8,6 +7,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.control.Button;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 

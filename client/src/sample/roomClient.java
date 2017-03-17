@@ -1,24 +1,21 @@
 package sample;
 
-import javafx.application.Platform;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.GridPane;
+import javafx.application.Platform;
+import javafx.scene.canvas.Canvas;
+import javafx.event.EventHandler;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import org.omg.PortableInterceptor.INACTIVE;
+import javafx.scene.Scene;
+import javafx.scene.Group;
+import javafx.fxml.FXML;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.HashMap;
 import java.util.Random;
+import java.net.Socket;
 
 /**
  * Created by lex on 16/03/17.

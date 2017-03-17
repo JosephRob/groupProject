@@ -1,12 +1,11 @@
 package sample;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.BufferedReader;
 import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.net.Socket;
 
 /**
  * Created by lex on 16/03/17.

@@ -1,10 +1,10 @@
 package sample;
 
-import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
-import java.util.*;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.util.*;
 import java.io.*;
 
 public class Main {
@@ -189,7 +189,7 @@ public class Main {
             while ((line=br.readLine())!=null) {
                 char[] name = decode(line);
                 char[] password = decode(br.readLine());
-                //System.out.println(new String(name)+ "\t" + new String(password));
+                //System.out.println(new String(name)+ "\t" + new String(password));//uncomment to view usernames and passwords in run
 
                 temp.put(new String(name), new String(password));
             }

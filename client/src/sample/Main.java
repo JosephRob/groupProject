@@ -29,7 +29,6 @@ public class Main extends Application {
     static String username;
     @Override
     public void start(final Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("login");
 
         GridPane login=new GridPane();
@@ -87,6 +86,7 @@ public class Main extends Application {
                 try {
                     IP=IPBox.getText();
                     String name = nameBox.getText();
+                    username=name;
                     String password = passwordBox.getText();
                     Socket socket = new Socket(IP, 1111);
                     BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
