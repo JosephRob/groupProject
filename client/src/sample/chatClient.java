@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -27,10 +28,11 @@ public class chatClient implements Runnable {
     TextField textField;
     Button button,exit;
 
-    public chatClient(int port, String IP, String username){
+    public chatClient(final int port, String IP, final String username){
         this.userID=username;
         this.port=port;
         this.IP=IP;
+
         stage=new Stage();
         stage.setTitle("chat "+(port-1999));
         BorderPane borderPane=new BorderPane();
@@ -41,12 +43,27 @@ public class chatClient implements Runnable {
         textField.setMinWidth(300);
 
         textField.alignmentProperty().setValue(Pos.BASELINE_CENTER);
+        final String tempIP=IP;
+
+        try {
+            Socket socket = new Socket(tempIP, port);
+            PrintWriter out=new PrintWriter(socket.getOutputStream());
+            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out.println("SYSYTEM\n"+username+" has joined");
+            out.flush();
+            br.readLine();
+            socket.close();
+        }
+        catch (java.io.IOException e){
+            System.out.println(e);
+        }
+
         exit=new Button("exit");
         exit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                stage.hide();
                 stage.close();
-                //
             }
         });
 
@@ -67,7 +84,25 @@ public class chatClient implements Runnable {
 
         stage.setScene(new Scene(borderPane,500,700));
         stage.show();
-        
+
+        stage.setOnHiding(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent windowEvent) {
+                try {
+                    Socket socket = new Socket(tempIP, port);
+                    PrintWriter out=new PrintWriter(socket.getOutputStream());
+                    BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    out.println("SYSYTEM\n"+username+" has left");
+                    out.flush();
+                    br.readLine();
+                    socket.close();
+                }
+                catch (java.io.IOException e){
+                    System.out.println(e);
+                }
+            }
+        });
+
     }
     @Override
     public void run() {
