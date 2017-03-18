@@ -46,6 +46,7 @@ public class chatClient implements Runnable {
             @Override
             public void handle(ActionEvent event) {
                 stage.close();
+                //
             }
         });
 
@@ -66,6 +67,7 @@ public class chatClient implements Runnable {
 
         stage.setScene(new Scene(borderPane,500,700));
         stage.show();
+        
     }
     @Override
     public void run() {

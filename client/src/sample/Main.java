@@ -145,6 +145,7 @@ public class Main extends Application {
                         socket.close();
                     }
                 }catch (java.io.IOException e){}
+                System.out.println("exit");
             }
         }, "Shutdown-thread"));
     }
@@ -159,13 +160,20 @@ public class Main extends Application {
 
                     Socket socket = new Socket(IP, 1112);
                     BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    PrintWriter out=new PrintWriter(socket.getOutputStream());
 
-                    String port;
-                    while ((port=br.readLine())!=null){
-                        String name=br.readLine();
-                        //System.out.println(port+"\t"+name);
+                    out.println(userCode);
+                    out.flush();
 
-                        temp.add(new Location(Integer.parseInt(port),name));
+                    if(Integer.parseInt(br.readLine())==1) {
+
+                        String port;
+                        while ((port = br.readLine()) != null) {
+                            String name = br.readLine();
+                            //System.out.println(port+"\t"+name);
+
+                            temp.add(new Location(Integer.parseInt(port), name));
+                        }
                     }
                     socket.close();
 

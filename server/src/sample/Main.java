@@ -141,7 +141,16 @@ public class Main {
                         while (true){
                             Thread.sleep(100);
                             Socket socket=serverSocket.accept();
+                            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
                             PrintWriter out=new PrintWriter(socket.getOutputStream());
+
+                            if(UserIDs.containsKey(Integer.parseInt(br.readLine()))){
+                                out.println(1);
+                            }
+                            else {
+                                out.println(0);
+                            }
+                            out.flush();
 
                             Iterator it=serverMap.entrySet().iterator();
                             while (it.hasNext()){
