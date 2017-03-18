@@ -27,8 +27,10 @@ public class chatClient implements Runnable {
     TextArea textArea;
     TextField textField;
     Button button,exit;
+    boolean terminate;
 
     public chatClient(final int port, String IP, final String username){
+        terminate=false;
         this.userID=username;
         this.port=port;
         this.IP=IP;
@@ -96,17 +98,39 @@ public class chatClient implements Runnable {
                     out.flush();
                     br.readLine();
                     socket.close();
+                    terminate=true;
                 }
                 catch (java.io.IOException e){
                     System.out.println(e);
                 }
             }
         });
-
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Socket socket = new Socket(tempIP, port);
+                    PrintWriter out=new PrintWriter(socket.getOutputStream());
+                    BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    out.println("SYSYTEM\n"+username+" has left");
+                    out.flush();
+                    br.readLine();
+                    socket.close();
+                }
+                catch (java.io.IOException e){
+                    System.out.println(e);
+                }
+                terminate=true;
+            }
+        }, "Shutdown-thread"));
     }
     @Override
     public void run() {
         while(true){try {
+            if (terminate){
+                Thread.currentThread().interrupt();
+                break;
+            }
+
 
             Socket socket=new Socket(IP,port);
             BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));

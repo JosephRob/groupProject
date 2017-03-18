@@ -1,6 +1,8 @@
 package sample;
 
+import javafx.event.ActionEvent;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyEvent;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
@@ -10,6 +12,7 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.Group;
 import javafx.fxml.FXML;
+import javafx.stage.WindowEvent;
 
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -26,13 +29,17 @@ public class roomClient implements  Runnable{
     boolean left,right,up,down;
     int x,y,v,size;
     double[] color;
+    boolean terminate;
 
     @FXML
     private Canvas base;
 
-    public roomClient(int port, String IP, String username){
+    public roomClient(final int port, String IP, final String username){
+        terminate=false;
         this.port=port;
         this.IP=IP;
+        final String tempIP=IP;
+
         this.userID=username;
         size=50;
 
@@ -50,33 +57,12 @@ public class roomClient implements  Runnable{
         y=(int)(3*base.getHeight()/4);
         v=0;
 
+
         Group root=new Group();
         root.getChildren().add(base);
 
-        Scene scene=new Scene(root,400,400);
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                switch (event.getCode()) {
-                    case LEFT:
-                        //System.out.println("left");
-                        left=true;
-                        break;
-                    case RIGHT:
-                        //System.out.println("right");
-                        right=true;
-                        break;
-                    case UP:
-                        //System.out.println("up");
-                        up=true;
-                        break;
-                    case DOWN:
-                        //System.out.println("down");
-                        down=true;
-                        break;
-                }
-            }
-        });
+        final Scene scene=new Scene(root,400,400);
+
         scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
@@ -101,49 +87,118 @@ public class roomClient implements  Runnable{
             }
         });
 
-        Stage stage=new Stage();
+        final Stage stage=new Stage();
         stage.setScene(scene);
         stage.show();
+
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                switch (event.getCode()) {
+                    case LEFT:
+                        //System.out.println("left");
+                        left=true;
+                        break;
+                    case RIGHT:
+                        //System.out.println("right");
+                        right=true;
+                        break;
+                    case UP:
+                        //System.out.println("up");
+                        up=true;
+                        break;
+                    case DOWN:
+                        //System.out.println("down");
+                        down=true;
+                        break;
+                    case Q:
+                        stage.hide();
+                        stage.close();
+                        break;
+                }
+            }
+        });
+
+        stage.setOnHiding(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent windowEvent) {
+                try {
+                    Socket socket = new Socket(tempIP, port);
+                    PrintWriter out=new PrintWriter(socket.getOutputStream());
+                    out.println("0\n"+username);
+                    out.flush();
+                    socket.close();
+                    System.out.println("exit complete");
+                }
+                catch (java.io.IOException e){System.out.println(e);}
+                terminate=true;
+            }
+        });
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            public void run() {
+                //System.out.println("logout");
+                try {
+                    Socket socket = new Socket(tempIP, port);
+                    PrintWriter out=new PrintWriter(socket.getOutputStream());
+                    out.println("0\n"+username);
+                    out.flush();
+                    socket.close();
+                    System.out.println("exit complete");
+                }
+                catch (java.io.IOException e){System.out.println(e);}
+                terminate=true;
+            }
+        }, "Shutdown-thread"));
     }
     @Override
     public void run() {
         while (true) {try {
             while(true) {
-                Thread.sleep(10);
+                Thread.sleep(20);
+
+                if (terminate){
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        String otherUser;
-                        final GraphicsContext gc = base.getGraphicsContext2D();
-                        drawBack(gc);
-                        try {
-                            final Socket socket=new Socket(IP,port);
-                            PrintWriter out=new PrintWriter(socket.getOutputStream());
-                            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        if (! terminate) {
+                            String otherUser;
+                            final GraphicsContext gc = base.getGraphicsContext2D();
+                            try {
+                                final Socket socket = new Socket(IP, port);
+                                PrintWriter out = new PrintWriter(socket.getOutputStream());
+                                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                            out.println(userID);
-                            out.println(x);
-                            out.println(y);
-                            for (int x=0;x<3;x++)
-                                out.println(color[x]);
-
-                            out.flush();
-
-                            final Integer[] otherPlace=new Integer[2];
-                            final Double[] otherColor=new Double[3];
-
-                            while ((otherUser = br.readLine()) != null) {
-                                for (int x = 0; x < 2; x++)
-                                    otherPlace[x] = Integer.parseInt(br.readLine());
+                                out.println(1);
+                                out.println(userID);
+                                out.println(x);
+                                out.println(y);
                                 for (int x = 0; x < 3; x++)
-                                    otherColor[x] = Double.parseDouble(br.readLine());
-                                gc.setFill(new Color(otherColor[0], otherColor[1], otherColor[2], 1));
-                                gc.fillRect(otherPlace[0] - size, otherPlace[1] - size, size, size);
-                                gc.strokeText(otherUser,otherPlace[0]-size,otherPlace[1]+10);
+                                    out.println(color[x]);
+
+                                out.flush();
+
+                                final Integer[] otherPlace = new Integer[2];
+                                final Double[] otherColor = new Double[3];
+
+                                drawBack(gc);
+                                while ((otherUser = br.readLine()) != null) {
+                                    for (int x = 0; x < 2; x++)
+                                        otherPlace[x] = Integer.parseInt(br.readLine());
+                                    for (int x = 0; x < 3; x++)
+                                        otherColor[x] = Double.parseDouble(br.readLine());
+                                    gc.setFill(new Color(otherColor[0], otherColor[1], otherColor[2], 1));
+                                    gc.fillRect(otherPlace[0] - size, otherPlace[1] - size, size, size);
+                                    gc.strokeText(otherUser, otherPlace[0] - size, otherPlace[1] + 10);
+                                }
+                                socket.close();
+                            } catch (java.io.IOException e) {
+                                System.out.println(e + " here");
                             }
-                            socket.close();
                         }
-                        catch (java.io.IOException e){System.out.println(e);}
                     }
                 });
 

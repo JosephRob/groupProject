@@ -26,29 +26,40 @@ public class room implements Runnable{
                 BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter out=new PrintWriter(socket.getOutputStream());
 
-                String currentUser=br.readLine();
-                Integer[] place=new Integer[2];
-                Double[] color=new Double[3];
-                for (int x=0;x<2;x++)
-                    place[x]=Integer.parseInt(br.readLine());
-                for (int x=0;x<3;x++)
-                    color[x]=Double.parseDouble(br.readLine());
+                if(Integer.parseInt(br.readLine())==1) {
+                    String currentUser = br.readLine();
+                    Integer[] place = new Integer[2];
+                    Double[] color = new Double[3];
+                    for (int x = 0; x < 2; x++)
+                        place[x] = Integer.parseInt(br.readLine());
+                    for (int x = 0; x < 3; x++)
+                        color[x] = Double.parseDouble(br.readLine());
 
-                positions.put(currentUser,place);
-                colors.put(currentUser,color);
+                    positions.put(currentUser, place);
+                    colors.put(currentUser, color);
 
-                for (String name:positions.keySet()){
-                    //System.out.println(name+"\t"+positions.get(name)[0]+"\t"+positions.get(name)[1]);
-                    out.println(name);
-                    for (int x=0;x<2;x++)
-                        out.println(positions.get(name)[x]);
-                    for (int x=0;x<3;x++)
-                        out.println(colors.get(name)[x]);
-                    out.flush();
+
+                    for (String name : positions.keySet()) {
+                        //System.out.println(name+"\t"+positions.get(name)[0]+"\t"+positions.get(name)[1]);
+                        out.println(name);
+                        for (int x = 0; x < 2; x++)
+                            out.println(positions.get(name)[x]);
+                        for (int x = 0; x < 3; x++)
+                            out.println(colors.get(name)[x]);
+                        out.flush();
+                    }
+                }
+                else{//exit
+                    String userName=br.readLine();
+                    if (positions.containsKey(userName)) {
+                        positions.remove(userName);
+                        colors.remove(userName);
+                        //System.out.println("removing "+userName+" from room "+port);
+                    }
                 }
 
                 socket.close();
             }
-        }catch (Exception e){}}
+        }catch (Exception e){System.out.println(e);System.exit(1);}}
     }
 }
