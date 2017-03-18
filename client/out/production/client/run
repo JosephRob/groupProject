@@ -1,3 +1,0 @@
-javac sample/*.java
-java sample.Main
-rm sample/*.class

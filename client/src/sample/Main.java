@@ -220,6 +220,10 @@ public class Main extends Application {
                                 Thread room=new Thread(new roomClient(selectedCells.getPort(), IP, username));
                                 room.start();
                                 break;
+                            case "tictactoe":
+                                Thread tictactoe=new Thread(new ticTacToeClient(selectedCells.getPort(), IP, username));
+                                tictactoe.start();
+                                break;
                             default:
                                 break;
                         }
