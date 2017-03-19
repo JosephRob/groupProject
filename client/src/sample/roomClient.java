@@ -137,15 +137,6 @@ public class roomClient implements  Runnable{
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             public void run() {
                 //System.out.println("logout");
-                try {
-                    Socket socket = new Socket(tempIP, port);
-                    PrintWriter out=new PrintWriter(socket.getOutputStream());
-                    out.println("0\n"+username);
-                    out.flush();
-                    socket.close();
-                    System.out.println("exit complete");
-                }
-                catch (java.io.IOException e){System.out.println(e);}
                 terminate=true;
             }
         }, "Shutdown-thread"));

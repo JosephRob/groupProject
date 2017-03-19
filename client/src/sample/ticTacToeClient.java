@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.control.Button;
@@ -22,12 +23,11 @@ public class ticTacToeClient implements Runnable {
     boolean terminate;
     String IP,username;
     int toX,toY;
+    Label result;
     Button[][] tiles;
-    char me;
 
     public ticTacToeClient(final int  port, String IP, String username){
         terminate=false;
-        me='A';
         toX=-1;
         toY=-1;
         this.port=port;
@@ -37,7 +37,7 @@ public class ticTacToeClient implements Runnable {
         tiles=new Button[3][3];
         for (int x=0;x<3;x++){
             for(int y=0;y<3;y++){
-                tiles[x][y]=new Button("\n\n\n");
+                tiles[x][y]=new Button("\n \n\n");
 
                 tiles[x][y].setMinWidth(60);
                 final int tempx=x,tempy=y;
@@ -55,7 +55,9 @@ public class ticTacToeClient implements Runnable {
         BorderPane root=new BorderPane();
         root.setCenter(base);
         Button exit=new Button("exit");
+        result=new Label();
         root.setTop(exit);
+        root.setBottom(result);
         final Scene scene=new Scene(root,400,400);
 
         final Stage stage=new Stage();
@@ -80,6 +82,7 @@ public class ticTacToeClient implements Runnable {
                 return;
             }
             try{
+                Thread.sleep(50);
                 Socket socket=new Socket(IP,port);
                 BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter out=new PrintWriter(socket.getOutputStream());
@@ -87,37 +90,122 @@ public class ticTacToeClient implements Runnable {
                 out.println(username);
                 out.flush();
 
-                out.println(toX);
-                out.println(toY);
-                out.println(me);
-                out.flush();
-                //System.out.println("fasdfads");
+                if (Integer.parseInt(br.readLine())==1) {
 
-                if (toX!=-1 && toY!=-1)
-                    tiles[toX][toY].setDisable(true);
-
-                toX=-1;
-                toY=-1;
-
-                for (int x=0;x<3;x++)
-                    for (int y=0;y<3;y++) {
-                        final char icon=br.readLine().charAt(0);
-                        final int tempx=x;
-                        final int tempy=y;
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                tiles[tempx][tempy].setText("\n\n");
-                                if (!(icon!='e'))
-                                    tiles[tempx][tempy].setText("\n" + icon + "\n");
-                            }
-                        });
+                    if (over()){
+                        toX=-1;
+                        toY=-1;
                     }
+                    out.println(toX);
+                    out.println(toY);
+                    /*if(toX!=-1) {
+                        System.out.print(toX+"\t");
+                        System.out.println(toY);
+                    }*/
+                    out.flush();
 
 
+                    toX = -1;
+                    toY = -1;
+                    final char[][] tempP = new char[3][3];
+
+                    String a=br.readLine();
+                    for (int x = 0; x < 3; x++) {
+                        for (int y = 0; y < 3; y++) {
+                            final char icon = br.readLine().charAt(0);
+                            if (icon != 'e') {
+                                tiles[x][y].setDisable(true);
+                                tempP[x][y] = icon;
+                            } else {
+                                tempP[x][y] = ' ';
+                            }
+                        }
+                    }
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (int x = 0; x < 3; x++)
+                                for (int y = 0; y < 3; y++) {
+                                    tiles[x][y].setText("\n" + (tempP[x][y]) + "\n");
+                                }
+                        }
+                    });
+                }
 
                 socket.close();
             }catch (java.io.IOException e){System.out.println(e);}
+            catch (java.lang.InterruptedException e){System.out.println(e);}
         }
+    }
+    public boolean over(){
+        char[][]board=new char[3][3];
+        for (int x=0;x<3;x++)
+            for (int y=0;y<3;y++) {
+                board[x][y] = tiles[x][y].getText().charAt(1);
+                //System.out.println(x+":"+y+":"+board[x][y]);
+            }
+        if (board[0][0]==board[1][1] && board[1][1]==board[2][2]){
+            if (board[0][0]!=' ') {
+                final char winner=board[0][0];
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        result.setText("a:"+winner + " wins");
+                    }
+                });
+                return true;
+            }
+        }
+        else if(board[2][0]==board[1][1] && board[1][1]==board[0][2]){
+            if (board[2][0]!=' ') {
+                final char winner=board[2][0];
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        result.setText(winner + " wins");
+                    }
+                });
+                return true;
+            }
+        }
+        else {for (int x=0;x<3;x++){
+            if (board[x][0]==board[x][1] && board[x][1]==board[x][2]){
+                if (board[x][0]!=' ') {
+                    final char winner=board[x][0];
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            result.setText(winner + " wins");
+                        }
+                    });
+                    return true;
+                }
+            }
+            if (board[0][x]==board[1][x] && board[1][x]==board[2][x]){
+                if (board[0][x]!=' ') {
+                    final char winner=board[0][x];
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            result.setText(winner + " wins");
+                        }
+                    });
+                    return true;
+                }
+            }
+        }}
+        if (board[0][0]==board[0][1]&&board[0][0]==board[0][2]&&board[0][0]==board[1][0]&&board[0][0]==board[1][1]&&board[0][0]==board[1][2]&&board[0][0]==board[2][0]&&board[0][0]==board[2][1]&&board[0][0]==board[2][2]){
+            if (board[0][0]!=' ') {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        result.setText("tie");
+                    }
+                });
+                return true;
+            }
+        }
+
+        return false;
     }
 }
