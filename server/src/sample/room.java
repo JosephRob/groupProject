@@ -2,6 +2,7 @@ package sample;
 
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ public class room implements Runnable{
                         for (int x = 0; x < 3; x++)
                             out.println(colors.get(name)[x]);
                         out.flush();
+
                     }
                 }
                 else{//exit

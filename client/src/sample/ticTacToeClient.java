@@ -1,9 +1,10 @@
 package sample;
 
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCharacterCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.control.Button;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
@@ -26,12 +27,21 @@ public class ticTacToeClient implements Runnable {
     Label result;
     Button[][] tiles;
 
-    public ticTacToeClient(final int  port, String IP, String username){
+    public ticTacToeClient(final int  port, String IPA, String username){
+        MenuBar top=new MenuBar();
+        Menu file=new Menu("file");
+        MenuItem restart=new MenuItem("restart");
+        restart.setAccelerator(KeyCombination.keyCombination("Ctrl+r"));
+        MenuItem quit=new MenuItem("quit");
+        quit.setAccelerator(KeyCombination.keyCombination("Ctrl+q"));
+        file.getItems().addAll(restart,quit);
+        top.getMenus().add(file);
+
         terminate=false;
         toX=-1;
         toY=-1;
         this.port=port;
-        this.IP=IP;
+        this.IP=IPA;
         this.username=username;
         GridPane base=new GridPane();
         tiles=new Button[3][3];
@@ -56,23 +66,38 @@ public class ticTacToeClient implements Runnable {
         root.setCenter(base);
         Button exit=new Button("exit");
         result=new Label();
-        root.setTop(exit);
+        root.setTop(top);
         root.setBottom(result);
         final Scene scene=new Scene(root,400,400);
 
         final Stage stage=new Stage();
         stage.setScene(scene);
         stage.show();
-        exit.setOnAction(new EventHandler<ActionEvent>() {
+
+        quit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 stage.hide();
                 stage.close();
                 terminate=true;
-                Thread.currentThread().interrupt();
             }
         });
+        restart.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    Socket socket = new Socket(IP, port);
 
+                    PrintWriter out=new PrintWriter(socket.getOutputStream());
+
+                    out.println(-1);
+                    out.flush();
+
+                    socket.close();
+                }catch (java.io.IOException e){System.out.println(e);}
+                System.out.println("restart");
+            }
+        });
     }
     @Override
     public void run() {
@@ -87,6 +112,7 @@ public class ticTacToeClient implements Runnable {
                 BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter out=new PrintWriter(socket.getOutputStream());
 
+                out.println(1);
                 out.println(username);
                 out.flush();
 

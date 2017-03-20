@@ -188,6 +188,11 @@ public class Main {
         defaultRoom1.start();
         serverMap.put(serverstart,"room1");
         serverstart++;
+
+        Thread defaultTicTacToe1=new Thread(new ticTacToe(serverstart));
+        defaultTicTacToe1.start();
+        serverMap.put(serverstart,"tictactoe1");
+        serverstart++;
     }
     private HashMap<String,String> setUsers(){
         HashMap<String,String> temp=new HashMap<>();
