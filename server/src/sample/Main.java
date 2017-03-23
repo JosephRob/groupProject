@@ -11,6 +11,7 @@ public class Main {
     private static HashMap<String,String> Users=new HashMap<>();
     private static HashMap<Integer,String> UserIDs=new HashMap<>();
     private static HashMap<Integer,String> serverMap=new HashMap<>();
+    private static HashMap<String, Thread> threads=new HashMap<>();
     private static int passwordKey=12345;
     static int joinPort=1111,
             listPort=1112,
@@ -173,26 +174,141 @@ public class Main {
         logoutThread.start();
         Thread list=new Thread(listings);
         list.start();
+        Thread maintain=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    try{
+                        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+                        String input = br.readLine();
+                        String command=input.split(" ")[0];
+                        String selection;
+                        switch (command){
+                            case "add":
+                                selection=input.split(" ")[1];
+                                if (selection.equals("room")){
+                                    //add room
+                                    Thread defaultRoom=new Thread(new room(serverstart));
+                                    defaultRoom.start();
+                                    serverMap.put(serverstart,"room"+serverstart);
+                                    threads.put("room"+serverstart,defaultRoom);
+                                    System.out.println("\tadded room"+serverstart);
+                                    serverstart++;
+                                }
+                                else if (selection.equals("chat")){
+                                    //add chat
+                                    Thread defaultChat=new Thread(new chat(serverstart));
+                                    defaultChat.start();
+                                    serverMap.put(serverstart,"chat"+serverstart);
+                                    threads.put("chat"+serverstart,defaultChat);
+                                    System.out.println("\tadded chat"+serverstart);
+                                    serverstart++;
+                                }
+                                else if (selection.equals("ticTacToe")){
+                                    //add ticTacToe
+                                    Thread defaultTictactoe=new Thread(new ticTacToe(serverstart));
+                                    defaultTictactoe.start();
+                                    serverMap.put(serverstart,"ticTacToe"+serverstart);
+                                    threads.put("ticTacToe"+serverstart,defaultTictactoe);
+                                    System.out.println("\tadded ticTacToe"+serverstart);
+                                    serverstart++;
+                                }
+                                else{System.out.println("Invalid selection");}
+                                break;
+                            case "remove":
+                                selection=input.split(" ")[1]+input.split(" ")[2];
+                                int number=Integer.parseInt(input.split(" ")[2]);
+                                if (threads.containsKey(selection)){
+                                    System.out.println("\tremoving "+selection);
+                                    threads.get(selection).interrupt();
+                                    threads.remove(selection);
+                                    serverMap.remove(number);
+                                }
+                                else {System.out.println("Invalid selection: server does not exist");}
+                                break;
+                            case "display":
+                                for (int part:serverMap.keySet()){
+                                    System.out.println("\t"+serverMap.get(part));
+                                }
+                                break;
+                            case "help":
+                                System.out.println("To add server: add <serverType>");
+                                System.out.println("\texample for abcServer:");
+                                System.out.println("\tadd abcServer");
+                                System.out.println("To remove server: remove <serverType> <serverNumber>");
+                                System.out.println("\texample for abcServer1234:");
+                                System.out.println("\tremove abcServer 1234");
+                                System.out.println("To display all servers: display");
+                                System.out.println("To create demo set of servers: demo");
+                                System.out.println("To exit: terminate");
+                                break;
+                            case "demo":
+                                //add one of each
+                                //add room
+                                Thread defaultRoom=new Thread(new room(serverstart));
+                                defaultRoom.start();
+                                serverMap.put(serverstart,"room"+serverstart);
+                                threads.put("room"+serverstart,defaultRoom);
+                                System.out.println("\tadded room"+serverstart);
+                                serverstart++;
+                                //add chat
+                                Thread defaultChat=new Thread(new chat(serverstart));
+                                defaultChat.start();
+                                serverMap.put(serverstart,"chat"+serverstart);
+                                threads.put("chat"+serverstart,defaultChat);
+                                System.out.println("\tadded chat"+serverstart);
+                                serverstart++;
+                                //add ticTacToe
+                                Thread defaultTictactoe=new Thread(new ticTacToe(serverstart));
+                                defaultTictactoe.start();
+                                serverMap.put(serverstart,"tictactoe"+serverstart);
+                                threads.put("tictactoe"+serverstart,defaultTictactoe);
+                                System.out.println("\tadded tictactoe"+serverstart);
+                                serverstart++;
 
+                                break;
+                            case "terminate":
+                                System.out.println("exit (Y/N)");
+                                if (br.readLine().equalsIgnoreCase("y"))
+                                    System.exit(0);
+                                else System.out.println("exit aborted");
+
+                                break;
+                            default:
+                                System.out.println("unrecognised command\n\ttry command: help");
+                                break;
+                        }
+                    }
+                    catch (java.io.IOException e){
+                        System.err.println(e);
+                    }
+                    catch (Exception e){
+                        System.err.println("Invalid command\n\t"+e);
+                    }
+                }
+            }
+        });
+        maintain.start();
+/*
         Thread defaultChat=new Thread(new chat(serverstart));
         defaultChat.start();
-        serverMap.put(serverstart,"chat1");
+        serverMap.put(serverstart,"chat 1");
         serverstart++;
 
         Thread defaultChat2=new Thread(new chat(serverstart));
         defaultChat2.start();
-        serverMap.put(serverstart,"chat2");
+        serverMap.put(serverstart,"chat 2");
         serverstart++;
 
         Thread defaultRoom1=new Thread(new room(serverstart));
         defaultRoom1.start();
-        serverMap.put(serverstart,"room1");
+        serverMap.put(serverstart,"room 1");
         serverstart++;
 
         Thread defaultTicTacToe1=new Thread(new ticTacToe(serverstart));
         defaultTicTacToe1.start();
-        serverMap.put(serverstart,"tictactoe1");
-        serverstart++;
+        serverMap.put(serverstart,"tictactoe 1");
+        serverstart++;*/
     }
     private HashMap<String,String> setUsers(){
         HashMap<String,String> temp=new HashMap<>();

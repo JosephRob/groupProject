@@ -143,6 +143,7 @@ public class ticTacToeClient implements Runnable {
                                 tiles[x][y].setDisable(true);
                                 tempP[x][y] = icon;
                             } else {
+                                tiles[x][y].setDisable(false);
                                 tempP[x][y] = ' ';
                             }
                         }
