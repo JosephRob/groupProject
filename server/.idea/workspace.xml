@@ -62,8 +62,8 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/server/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="205">
-              <caret line="221" column="186" lean-forward="true" selection-start-line="221" selection-start-column="186" selection-end-line="221" selection-end-column="186" />
+            <state relative-caret-position="2685">
+              <caret line="190" column="51" lean-forward="false" selection-start-line="190" selection-start-column="40" selection-end-line="190" selection-end-column="51" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -131,8 +131,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>logout</find>
-      <find>write</find>
       <find>System</find>
       <find>\t</find>
       <find>S</find>
@@ -161,6 +159,8 @@
       <find>ca</find>
       <find>remove&quot;</find>
       <find>serverSocket</find>
+      <find>serverSta</find>
+      <find>serverStart</find>
     </findStrings>
   </component>
   <component name="FindManager">
@@ -960,8 +960,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/server/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="221" column="186" lean-forward="true" selection-start-line="221" selection-start-column="186" selection-end-line="221" selection-end-column="186" />
+        <state relative-caret-position="2685">
+          <caret line="190" column="51" lean-forward="false" selection-start-line="190" selection-start-column="40" selection-end-line="190" selection-end-column="51" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

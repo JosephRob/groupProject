@@ -14,8 +14,7 @@ public class Main {
     private static HashMap<String, Thread> threads=new HashMap<>();
     private static int passwordKey=12345;
     static int joinPort=1111,
-            listPort=1112,
-            serverstart=2000;
+            listPort=1112;
     static int keyCode=0;
     public static void main(String[] args) {
         try {
@@ -188,30 +187,36 @@ public class Main {
                                 selection=input.split(" ")[1];
                                 if (selection.equals("room")){
                                     //add room
+                                    ServerSocket a=new ServerSocket(0);
+                                    int serverstart=a.getLocalPort();
+                                    a.close();
                                     Thread defaultRoom=new Thread(new room(serverstart));
                                     defaultRoom.start();
                                     serverMap.put(serverstart,"room"+serverstart);
                                     threads.put("room"+serverstart,defaultRoom);
                                     System.out.println("\tadded room"+serverstart);
-                                    serverstart++;
                                 }
                                 else if (selection.equals("chat")){
                                     //add chat
+                                    ServerSocket a=new ServerSocket(0);
+                                    int serverstart=a.getLocalPort();
+                                    a.close();
                                     Thread defaultChat=new Thread(new chat(serverstart));
                                     defaultChat.start();
                                     serverMap.put(serverstart,"chat"+serverstart);
                                     threads.put("chat"+serverstart,defaultChat);
                                     System.out.println("\tadded chat"+serverstart);
-                                    serverstart++;
                                 }
                                 else if (selection.equals("ticTacToe")){
                                     //add ticTacToe
+                                    ServerSocket a=new ServerSocket(0);
+                                    int serverstart=a.getLocalPort();
+                                    a.close();
                                     Thread defaultTictactoe=new Thread(new ticTacToe(serverstart));
                                     defaultTictactoe.start();
                                     serverMap.put(serverstart,"ticTacToe"+serverstart);
                                     threads.put("ticTacToe"+serverstart,defaultTictactoe);
                                     System.out.println("\tadded ticTacToe"+serverstart);
-                                    serverstart++;
                                 }
                                 else{System.out.println("Invalid selection");}
                                 break;
@@ -245,26 +250,32 @@ public class Main {
                             case "demo":
                                 //add one of each
                                 //add room
+                                ServerSocket a=new ServerSocket(0);
+                                int serverstart=a.getLocalPort();
+                                a.close();
                                 Thread defaultRoom=new Thread(new room(serverstart));
                                 defaultRoom.start();
                                 serverMap.put(serverstart,"room"+serverstart);
                                 threads.put("room"+serverstart,defaultRoom);
                                 System.out.println("\tadded room"+serverstart);
-                                serverstart++;
                                 //add chat
+                                a=new ServerSocket(0);
+                                serverstart=a.getLocalPort();
+                                a.close();
                                 Thread defaultChat=new Thread(new chat(serverstart));
                                 defaultChat.start();
                                 serverMap.put(serverstart,"chat"+serverstart);
                                 threads.put("chat"+serverstart,defaultChat);
                                 System.out.println("\tadded chat"+serverstart);
-                                serverstart++;
                                 //add ticTacToe
+                                a=new ServerSocket(0);
+                                serverstart=a.getLocalPort();
+                                a.close();
                                 Thread defaultTictactoe=new Thread(new ticTacToe(serverstart));
                                 defaultTictactoe.start();
                                 serverMap.put(serverstart,"tictactoe"+serverstart);
                                 threads.put("tictactoe"+serverstart,defaultTictactoe);
                                 System.out.println("\tadded tictactoe"+serverstart);
-                                serverstart++;
 
                                 break;
                             case "terminate":
@@ -289,26 +300,6 @@ public class Main {
             }
         });
         maintain.start();
-/*
-        Thread defaultChat=new Thread(new chat(serverstart));
-        defaultChat.start();
-        serverMap.put(serverstart,"chat 1");
-        serverstart++;
-
-        Thread defaultChat2=new Thread(new chat(serverstart));
-        defaultChat2.start();
-        serverMap.put(serverstart,"chat 2");
-        serverstart++;
-
-        Thread defaultRoom1=new Thread(new room(serverstart));
-        defaultRoom1.start();
-        serverMap.put(serverstart,"room 1");
-        serverstart++;
-
-        Thread defaultTicTacToe1=new Thread(new ticTacToe(serverstart));
-        defaultTicTacToe1.start();
-        serverMap.put(serverstart,"tictactoe 1");
-        serverstart++;*/
     }
     private HashMap<String,String> setUsers(){
         HashMap<String,String> temp=new HashMap<>();
