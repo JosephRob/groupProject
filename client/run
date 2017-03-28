@@ -1,5 +1,5 @@
 cd src
-javac sample/*.java
-java sample.Main
-rm sample/*.class
+javac client/*.java
+java client.Main
+rm client/*.class
 cd ..

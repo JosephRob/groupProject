@@ -1,4 +1,4 @@
-package sample;
+package client;
 
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.TextField;
@@ -6,11 +6,11 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.control.Button;
 import javafx.event.EventHandler;
+import javafx.stage.WindowEvent;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -125,38 +125,43 @@ public class chatClient implements Runnable {
     }
     @Override
     public void run() {
-        while(true){try {
-            if (terminate){
-                Thread.currentThread().interrupt();
-                break;
+        while(true) {
+            try {
+                if (terminate) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+
+
+                Socket socket = new Socket(IP, port);
+                BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(socket.getOutputStream());
+
+                out.println(userID);
+                if (line != null && !(line.equals(""))) {
+                    out.println(line);
+                } else {
+                    out.println(" ");
+                }
+                line = "";
+                out.flush();
+
+                String line, lines = "";
+                //System.out.println("1");
+
+                while ((line = br.readLine()) != null) {
+                    lines = lines + ("\n" + line);
+                }
+                textArea.setText(lines);
+
+                //System.out.println("2");
+                socket.close();
+                Thread.sleep(100);
+            } catch (java.io.IOException e) {
+                System.out.println(e + "\t" + userID + "\t\t" + line);
+            } catch (InterruptedException e) {
+                System.out.println(e);
             }
-
-
-            Socket socket=new Socket(IP,port);
-            BufferedReader br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out=new PrintWriter(socket.getOutputStream());
-
-            out.println(userID);
-            if(line!=null && !(line.equals(""))) {
-                out.println(line);
-            }
-            else {
-                out.println(" ");
-            }
-            line="";
-            out.flush();
-
-            String line,lines="";
-            //System.out.println("1");
-
-            while ((line=br.readLine())!=null){
-                lines=lines+("\n"+line);
-            }
-            textArea.setText(lines);
-
-            //System.out.println("2");
-            socket.close();
-            Thread.sleep(100);
-        }catch(Exception e){System.out.println(e+"\t"+userID+"\t\t"+line);while(true){}}}
+        }
     }
 }

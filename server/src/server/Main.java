@@ -1,4 +1,4 @@
-package sample;
+package server;
 
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
@@ -219,8 +219,8 @@ public class Main {
                                 selection=input.split(" ")[1]+input.split(" ")[2];
                                 int number=Integer.parseInt(input.split(" ")[2]);
                                 if (threads.containsKey(selection)){
+                                    System.out.println("Warning: shutting down a server while a user is connected will not disconnect the user, but will prevent new users from joining");
                                     System.out.println("\tremoving "+selection);
-                                    threads.get(selection).interrupt();
                                     threads.remove(selection);
                                     serverMap.remove(number);
                                 }

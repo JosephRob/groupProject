@@ -1,5 +1,6 @@
-package sample;
+package client;
 
+import com.sun.javafx.collections.transformation.SortedList;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -10,9 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
-import javafx.scene.Parent;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 
@@ -205,8 +204,7 @@ public class Main extends Application {
                     if (list.getSelectionModel().getSelectedItem() != null) {
                         TableView.TableViewSelectionModel selectionModel = list.getSelectionModel();
                         Location selectedCells = (Location) selectionModel.getSelectedItem();
-                        //System.out.println("Selected Value\t" + selectedCells.getName() + "\t" + selectedCells.getPort());
-                        //create new thread of type at port
+
                         String name = selectedCells.getName();
                         name = name.replaceAll("\\d", "");
                         //System.out.println(name);

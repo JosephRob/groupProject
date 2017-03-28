@@ -1,8 +1,7 @@
-package sample;
+package server;
 
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -62,6 +61,7 @@ public class room implements Runnable{
 
                 socket.close();
             }
-        }catch (Exception e){System.out.println(e);System.exit(1);}}
+        }
+        catch (Exception e){System.out.println(e);System.exit(1);}}
     }
 }

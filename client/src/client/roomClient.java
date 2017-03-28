@@ -1,8 +1,6 @@
-package sample;
+package client;
 
-import javafx.event.ActionEvent;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
 import javafx.scene.input.KeyEvent;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
@@ -17,6 +15,7 @@ import javafx.stage.WindowEvent;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.util.Random;
 import java.net.Socket;
 
@@ -130,7 +129,7 @@ public class roomClient implements  Runnable{
                     socket.close();
                     System.out.println("exit complete");
                 }
-                catch (java.io.IOException e){System.out.println(e);}
+                catch (java.io.IOException e){System.out.println("a"+e);}
                 terminate=true;
             }
         });
@@ -187,7 +186,7 @@ public class roomClient implements  Runnable{
                                 }
                                 socket.close();
                             } catch (java.io.IOException e) {
-                                System.out.println(e + " here");
+                                System.out.println("b"+e);
                             }
                         }
                     }
@@ -223,7 +222,8 @@ public class roomClient implements  Runnable{
                     y=(int)(3*base.getHeight()/4);
 
             }
-        }catch (Exception e){System.err.println(e);}}
+        }
+        catch (Exception e){System.err.println("a"+e);}}
     }
     private void drawBack(GraphicsContext gc){
         gc.setFill(Color.DEEPSKYBLUE);

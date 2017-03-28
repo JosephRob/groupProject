@@ -1,19 +1,19 @@
-package sample;
+package client;
 
-import javafx.scene.control.*;
-import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
+import javafx.scene.control.*;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
