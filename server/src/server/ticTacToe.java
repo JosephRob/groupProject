@@ -71,7 +71,7 @@ public class ticTacToe implements Runnable {
                             }
 
                         } else {
-                            out.println(0);
+                            out.println(2);
                             for (int x = 0; x < 3; x++)
                                 for (int y = 0; y < 3; y++)
                                     place[x][y] = 'e';

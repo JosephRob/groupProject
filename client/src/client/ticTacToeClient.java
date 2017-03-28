@@ -26,6 +26,7 @@ public class ticTacToeClient implements Runnable {
     int toX,toY;
     Label result;
     Button[][] tiles;
+    final Stage stage;
 
     public ticTacToeClient(final int  port, String IPA, String username){
         MenuBar top=new MenuBar();
@@ -70,7 +71,7 @@ public class ticTacToeClient implements Runnable {
         root.setBottom(result);
         final Scene scene=new Scene(root,400,400);
 
-        final Stage stage=new Stage();
+        stage=new Stage();
         stage.setScene(scene);
         stage.show();
 
@@ -116,7 +117,9 @@ public class ticTacToeClient implements Runnable {
                 out.println(username);
                 out.flush();
 
-                if (Integer.parseInt(br.readLine())==1) {
+                int index=Integer.parseInt(br.readLine());
+                //System.out.println(index);
+                if (index==1) {
 
                     if (over()){
                         toX=-1;
@@ -148,6 +151,11 @@ public class ticTacToeClient implements Runnable {
                             }
                         }
                     }
+                    if (a.equals("0")){
+                        for (int x = 0; x < 3; x++)
+                            for (int y = 0; y < 3; y++)
+                                tiles[x][y].setDisable(true);
+                    }
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
@@ -155,6 +163,21 @@ public class ticTacToeClient implements Runnable {
                                 for (int y = 0; y < 3; y++) {
                                     tiles[x][y].setText("\n" + (tempP[x][y]) + "\n");
                                 }
+                        }
+                    });
+                }
+                else if(index==0){
+                    terminate=true;
+
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            Stage alert = new Stage();
+                            alert.setTitle("error");
+                            alert.setScene(new Scene(new Label("tictactoe server full"),200,200));
+                            alert.showAndWait();
+                            stage.hide();
+                            stage.close();
                         }
                     });
                 }
