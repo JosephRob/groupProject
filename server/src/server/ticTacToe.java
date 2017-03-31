@@ -18,7 +18,6 @@ public class ticTacToe implements Runnable {
     List<String> in;
     String current;
 
-
     public ticTacToe(int port){
         count=0;
         in=new ArrayList<>();
