@@ -33,12 +33,39 @@ public class Main extends Application {
     private Canvas canvas;
     String answer = "";
     String toDraw = "draw";
-    String hostName = "";
     String notAnswered = "yes";
     String itsAnswered = "no";
+    String hostName = "127.0.0.1";
+    String name;
     @Override
     public void start(Stage primaryStage) throws Exception{
         //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+
+        Stage inputName = new Stage();
+        Label lab1 = new Label();
+        lab1.setText("Input Your Name");
+
+        Button but1 = new Button();
+        but1.setText("OK");
+
+        TextField tf1 = new TextField();
+
+        but1.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                name = tf1.getText();
+                inputName.close();
+            }
+        });
+
+        
+        Group allInput = new Group();
+        allInput.getChildren().add()
+
+        inputName.setScene(new Scene(allInput, 200,150, Color.WHITE));
+        inputName.show();
+
+
         Group root = new Group();
         Scene scene = new Scene(root, 800,500, Color.WHITE);
 
@@ -50,15 +77,19 @@ public class Main extends Application {
         primaryStage.setTitle("Drawing");
         primaryStage.setScene(scene);
         primaryStage.show();
-
+/*
         Runnable go = new Runnable() {
             @Override
             public void run() {
                 while(true){
                     try{
-                        ServerSocket serverSocket = new ServerSocket(8888);
+                        //ServerSocket serverSocket = new ServerSocket(8888);
                         while(true){
-                            Socket gotTurn = serverSocket.accept();
+                            Socket gotTurn = new Socket(hostName,2819);
+                            PrintWriter out = new PrintWriter(gotTurn.getOutputStream());
+                            out.println("1");
+                            out.close();
+
                             BufferedReader br = new BufferedReader(new InputStreamReader(gotTurn.getInputStream()));
                             String toDo = br.readLine();
                             if (toDraw == toDo){
@@ -66,6 +97,7 @@ public class Main extends Application {
                             } else {
                                 receiveDraw();
                             }
+
                         }
                     } catch (IOException ex){
                         ex.printStackTrace();
@@ -76,6 +108,7 @@ public class Main extends Application {
 
         Thread goRun = new Thread(go);
         goRun.start();
+*/
     }
 
     public void receiveDraw() throws IOException{

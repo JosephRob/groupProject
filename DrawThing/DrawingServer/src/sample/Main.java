@@ -12,37 +12,41 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main extends Application {
     String name = "Saya";
-    String answered = "no";
+    //String answered = "no";
+    boolean answered = false;
     String realAnaswer = "";
     String hostName = "";
+    List<String> connected;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        //primaryStage.setTitle("Hello World");
-        //primaryStage.setScene(new Scene(root, 300, 275));
-        //primaryStage.show();
-        /*
+        ServerSocket serverSocket = new ServerSocket(2819);
+        connected = new ArrayList<String>();
         Runnable gameStart = new Runnable() {
             @Override
             public void run() {
                 while(true){
-                    try{
-                        ServerSocket runn = new ServerSocket(8888);
-                        while(true){
-                            Socket yas = runn.accept();
+                    while(answered != true){
+                        try{
+                            while(true){
+                                Socket client = serverSocket.accept();
+                                connected.add()
 
+
+                            }
+                        } catch (IOException ex){
+                            ex.printStackTrace();
                         }
-                    } catch (IOException ex){
-                        ex.printStackTrace();
                     }
                 }
             }
         };
-        */
+
         //Thread runGame = new Thread(gameStart);
         //runGame.start();
 
