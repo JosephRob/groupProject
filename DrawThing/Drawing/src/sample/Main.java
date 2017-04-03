@@ -13,13 +13,17 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
@@ -31,16 +35,19 @@ import java.net.Socket;
 
 public class Main extends Application {
     private Canvas canvas;
+    private TextArea chatArea;
+    private TextField ansArea;
     String answer = "";
     String toDraw = "draw";
     String notAnswered = "yes";
     String itsAnswered = "no";
     String hostName = "127.0.0.1";
-    String name;
+    String playerName;
+    Thread runChat;
     @Override
     public void start(Stage primaryStage) throws Exception{
         //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-
+        //runChat = new Thread(chat);
         Stage inputName = new Stage();
         Label lab1 = new Label();
         lab1.setText("Input Your Name");
@@ -53,30 +60,111 @@ public class Main extends Application {
         but1.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                name = tf1.getText();
+                playerName = tf1.getText();
+                //System.out.println(playerName);
                 inputName.close();
+                primaryStage.show();
+                try {
+                    startPlay();
+                    runChat.start();
+                } catch (IOException ex){}
             }
         });
 
-        
+        GridPane panee = new GridPane();
+        panee.add(lab1, 0,0);
+        panee.add(tf1,0,1);
+        panee.add(but1,0,2);
+
         Group allInput = new Group();
-        allInput.getChildren().add()
+        allInput.getChildren().add(panee);
 
         inputName.setScene(new Scene(allInput, 200,150, Color.WHITE));
         inputName.show();
 
 
         Group root = new Group();
-        Scene scene = new Scene(root, 800,500, Color.WHITE);
+
+        GridPane chatSys = new GridPane();
+
+        chatArea = new TextArea();
+        chatArea.setMaxWidth(300);
+        chatArea.setMinHeight(470);
+        chatArea.setEditable(false);
+
+        ansArea = new TextField();
+        ansArea.setMinHeight(30);
+        ansArea.setMinWidth(250);
+
+        Button send = new Button();
+        send.setText("Send");
+        send.setMaxHeight(30);
+        send.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                String text = tf1.getText();
+                tf1.setText("");
+
+                try{
+                    Socket socket = new Socket(hostName, 9053);
+                    PrintWriter out = new PrintWriter(socket.getOutputStream());
+                    out.println(text);
+                    out.flush();
+                    socket.close();
+                } catch (IOException ex){
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        GridPane sendText = new GridPane();
+        sendText.add(ansArea,0,0);
+        sendText.add(send,1,0);
+
+        chatSys.add(chatArea,0,0);
+        chatSys.add(sendText,0,1);
+
+        BorderPane all = new BorderPane();
 
         canvas = new Canvas();
         canvas.setHeight(500);
         canvas.setWidth(800);
 
-        root.getChildren().add(canvas);
+        all.setLeft(canvas);
+        all.setRight(chatSys);
+
+        Scene scene = new Scene(root, 1100,500, Color.WHITE);
+
+        root.getChildren().add(all);
         primaryStage.setTitle("Drawing");
         primaryStage.setScene(scene);
-        primaryStage.show();
+
+        //startPlay();
+        Runnable chat = new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    try{
+                        Socket sckt = new Socket(hostName, 9053);
+                        BufferedReader br = new BufferedReader(new InputStreamReader(sckt.getInputStream()));
+                        //PrintWriter out = new PrintWriter(sckt.getOutputStream());
+                        String text = br.readLine();
+                        chatArea.setText(text);
+                        br.close();
+                        sckt.close();
+                        runChat.sleep(100);
+                    } catch (IOException ex){
+
+                    } catch (InterruptedException e){
+
+                    }
+                }
+            }
+        };
+        runChat = new Thread(chat);
+
+
 /*
         Runnable go = new Runnable() {
             @Override
@@ -111,6 +199,20 @@ public class Main extends Application {
 */
     }
 
+    public void startPlay() throws IOException{
+        Socket joinServer = new Socket(hostName,1997);
+        PrintWriter out = new PrintWriter(joinServer.getOutputStream());
+        out.println(playerName);
+        out.println(playerName + " has joined the game!");
+        out.close();
+    }
+/*
+    public void chatRun() throws IOException{
+        Socket joinAgain = new Socket(hostName,9053);
+        BufferedReader br = new BufferedReader(new InputStreamReader(joinAgain.getInputStream()));
+
+    }
+*/
     public void receiveDraw() throws IOException{
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.BLACK);
