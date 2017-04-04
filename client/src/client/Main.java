@@ -1,6 +1,5 @@
 package client;
 
-import com.sun.javafx.collections.transformation.SortedList;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -221,6 +220,10 @@ public class Main extends Application {
                             case "tictactoe":
                                 Thread tictactoe=new Thread(new ticTacToeClient(selectedCells.getPort(), IP, username));
                                 tictactoe.start();
+                                break;
+                            case "agar":
+                                Thread agar=new Thread(new agarClient(selectedCells.getPort(), IP, username));
+                                agar.start();
                                 break;
                             default:
                                 break;

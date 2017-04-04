@@ -218,6 +218,17 @@ public class Main {
                                     threads.put("ticTacToe"+serverstart,defaultTictactoe);
                                     System.out.println("\tadded ticTacToe"+serverstart);
                                 }
+                                else if (selection.equals("agar")){
+                                    //add agar
+                                    ServerSocket a=new ServerSocket(0);
+                                    int serverstart=a.getLocalPort();
+                                    a.close();
+                                    Thread defaultAgar=new Thread(new agar(serverstart));
+                                    defaultAgar.start();
+                                    serverMap.put(serverstart,"agar"+serverstart);
+                                    threads.put("agar"+serverstart,defaultAgar);
+                                    System.out.println("\tadded agar"+serverstart);
+                                }
                                 else{System.out.println("Invalid selection");}
                                 break;
                             case "remove":
@@ -276,6 +287,15 @@ public class Main {
                                 serverMap.put(serverstart,"tictactoe"+serverstart);
                                 threads.put("tictactoe"+serverstart,defaultTictactoe);
                                 System.out.println("\tadded tictactoe"+serverstart);
+                                //add agar
+                                a=new ServerSocket(0);
+                                serverstart=a.getLocalPort();
+                                a.close();
+                                Thread defaultAgar=new Thread(new agar(serverstart));
+                                defaultAgar.start();
+                                serverMap.put(serverstart,"agar"+serverstart);
+                                threads.put("agar"+serverstart,defaultAgar);
+                                System.out.println("\tadded agar"+serverstart);
 
                                 break;
                             case "terminate":
