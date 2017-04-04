@@ -2,36 +2,33 @@ package sample;
 
 import com.sun.corba.se.spi.activation.Server;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Main extends Application {
-    String name = "Saya";
-    //String answered = "no";
+    boolean gameStarted = false;
+    boolean check = false;
     boolean answered = false;
-    String realAnaswer = "";
-    String hostName = "";
+    int answerToStart = 1000000000;
+    String realAnswer = "";
     ArrayList<String> players;
     String historyOfText = "";
     Thread updtChat;
+    int numOfPlayer = 1;
+    String historyOfDraw = "";
+    ServerSocket inputAnswerSocket;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        int i = 1;
-        int playerIndex = 0;
         ServerSocket serverSocket = new ServerSocket(1997);
         ServerSocket chatSocket = new ServerSocket(9053);
+        inputAnswerSocket = new ServerSocket(2026);
         Runnable takingPeople = new Runnable() {
             @Override
             public void run() {
@@ -42,10 +39,27 @@ public class Main extends Application {
                         String name = br.readLine();
                         String sent = br.readLine();
                         historyOfText += sent + "\n";
-                        //someOneJoined(sent);
-                        //br.close();
                         client.close();
-                    } catch (IOException ex){}
+                        //Thread.sleep(1000);
+                        if (numOfPlayer == 2){
+                            Thread.sleep(1500);
+                            historyOfText += "GAME STARTS IN ->  3\t";
+                            updtChat.sleep(1000);
+                            historyOfText += "\t->  2\t";
+                            updtChat.sleep(1000);
+                            historyOfText += "\t ->  1";
+                            updtChat.sleep(1000);
+                            historyOfText += "\n\t\t\t\t  ENJOY!!\n";
+                            createNumb();
+                            gameStarted = true;
+                        }
+                        System.out.println(numOfPlayer);
+                        numOfPlayer++;
+                    } catch (IOException ex){
+
+                    } catch (InterruptedException e) {
+                        System.out.println(e);
+                    }
                 }
             }
         };
@@ -58,16 +72,51 @@ public class Main extends Application {
             public void run() {
                 while(true){
                     try {
-                        Socket client = chatSocket.accept();
-                        PrintWriter out = new PrintWriter(client.getOutputStream());
-                        out.println(historyOfText);
-                        out.close();
-                        client.close();
-                        updtChat.sleep(100);
-                    } catch (IOException ex){
+                        while (true){
+                            Socket socket = chatSocket.accept();
+                            BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                            PrintWriter out = new PrintWriter(socket.getOutputStream());
 
-                    } catch (InterruptedException e){
+                            String username = br.readLine();
+                            String line = br.readLine();
 
+                            if (!(line.equals(" "))) {
+                                if (line.equals(Integer.toString(answerToStart))){
+                                    answerToStart = 1000000000;
+                                    historyOfText += "\n" + username + ":\t" + line;
+                                    historyOfText += "\n\t\t\t\t" + username + "'s About To Draw!\n";
+                                    //System.out.println(line);
+                                    out.println(historyOfText);
+                                    out.println("yesYouDraw");
+                                    System.out.println("cp1");
+                                    check = true;
+                                    System.out.println("cp2");
+                                } else {
+                                    historyOfText += "\n" + username + ":\t" + line;
+                                    //System.out.println(historyOfText + " 1");
+                                    out.println(historyOfText);
+                                    //System.out.println(historyOfText);
+                                    out.println("noYouReceive");
+                                }
+                            } else {
+                                out.println(historyOfText);
+                            }
+
+                            if (gameStarted == true){
+                                out.println("gameIsStarted");
+                            } else {
+                                out.println("gameIsNotStarted");
+                            }
+
+                            out.flush();
+                            socket.close();
+                            if (check == true){
+                                answerInput();
+                                check = false;
+                            }
+                        }
+                    } catch (Exception e){
+                        System.out.println(e);
                     }
                 }
             }
@@ -75,89 +124,43 @@ public class Main extends Application {
 
         updtChat = new Thread(chat);
         updtChat.start();
-        /*
-        serverSocket.setSoTimeout(30000);
-        while(i < 6 && (!serverSocket.isClosed())){
-            try{
-                System.out.print("Player " + i + " = ");
-                Socket client = serverSocket.accept();
-                BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                String name = br.readLine();
-                System.out.print(name + ": ");
-                System.out.println(client.getLocalSocketAddress() + ": ");
-                //System.out.println(client.get);
-                i++;
-                br.close();
-                client.close();
-            } catch (IOException ex){
-
-            }
-        }
-        i = 1;
-        System.out.println(serverSocket.isClosed());
-        ServerSocket trySocket = new ServerSocket(2009);
-        trySocket.setSoTimeout(30000);
-        while(i < 6 && (!trySocket.isClosed())){
-            try{
-                System.out.print("Player " + i + " = ");
-                Socket client = trySocket.accept();
-                BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                String name = br.readLine();
-                System.out.print(name + ": ");
-                System.out.print(client.getRemoteSocketAddress() + ": ");
-                //System.out.println(client.get);
-                i++;
-                br.close();
-                client.close();
-            } catch (IOException ex){
-
-            }
-        }
-        */
-        //if (i == 5 || serverSocket.isClosed()){
-
-        //}
-        //connected = new ArrayList<String>();
-        /*
-        Runnable gameStart = new Runnable() {
-            @Override
-            public void run() {
-                while(true){
-                    while(answered != true){
-                        try{
-                            while(true){
-                                Socket client = serverSocket.accept();
-                                connected.add()
-
-
-                            }
-                        } catch (IOException ex){
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-            }
-        };
-*/
-        //Thread runGame = new Thread(gameStart);
-        //runGame.start();
-/*
-        //Listen for real answers
-        try{
-            ServerSocket forAns = new ServerSocket(1234);
-            Socket ansSoc = forAns.accept();
-            BufferedReader br = new BufferedReader(new InputStreamReader(ansSoc.getInputStream()));
-            realAnaswer = br.readLine();
-            br.close();
-            ansSoc.close();
-            forAns.close();
-        } catch (IOException ex){
-            ex.printStackTrace();
-        }
-*/
-
     }
 
+    public void createNumb(){
+        Random rand = new Random();
+        int numb1 = rand.nextInt(100)+1;
+        int numb2 = rand.nextInt(100)+1;
+        int operator = rand.nextInt(3)+1;
+        if (operator == 1){
+            answerToStart = numb1 + numb2;
+            String question = numb1 + " + " + numb2;
+            historyOfText += "\n\t\t  ANSWER QUESTION BELOW\n\t\t\t\t  " + question;
+        } else if (operator == 2){
+            answerToStart = numb1 - numb2;
+            String question = numb1 + " - " + numb2;
+            historyOfText += "\n\t\t  ANSWER QUESTION BELOW\n\t\t\t\t  " + question;
+        } else {
+            answerToStart = numb1 * numb2;
+            String question = numb1 + " x " + numb2;
+            historyOfText += "\n\t\t  ANSWER QUESTION BELOW\n\t\t\t\t  " + question;
+        }
+    }
+
+    public void answerInput(){
+        try{
+            Socket openForAnswer = inputAnswerSocket.accept();
+            BufferedReader br = new BufferedReader(new InputStreamReader(openForAnswer.getInputStream()));
+            realAnswer = br.readLine();
+            char answerInChar[] = realAnswer.toCharArray();
+            historyOfText += answerInChar.length + " characters, begins with " +
+                    Character.toUpperCase(answerInChar[0]) + " ends with " +
+                    Character.toUpperCase(answerInChar[answerInChar.length-1]);
+            openForAnswer.close();
+            System.out.println(realAnswer);
+        } catch (IOException ex){
+
+        }
+    }
     public static void main(String[] args) {
         launch(args);
     }

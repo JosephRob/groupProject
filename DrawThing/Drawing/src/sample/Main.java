@@ -2,6 +2,7 @@ package sample;
 
 import com.sun.corba.se.spi.activation.Server;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -44,10 +45,11 @@ public class Main extends Application {
     String hostName = "127.0.0.1";
     String playerName;
     Thread runChat;
+    String line;
+    Boolean receiveIsRunning = false;
+    Boolean gameStarted = false;
     @Override
     public void start(Stage primaryStage) throws Exception{
-        //Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        //runChat = new Thread(chat);
         Stage inputName = new Stage();
         Label lab1 = new Label();
         lab1.setText("Input Your Name");
@@ -102,19 +104,8 @@ public class Main extends Application {
         send.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-
-                String text = tf1.getText();
-                tf1.setText("");
-
-                try{
-                    Socket socket = new Socket(hostName, 9053);
-                    PrintWriter out = new PrintWriter(socket.getOutputStream());
-                    out.println(text);
-                    out.flush();
-                    socket.close();
-                } catch (IOException ex){
-                    ex.printStackTrace();
-                }
+                line = ansArea.getText();
+                ansArea.setText("");
             }
         });
 
@@ -146,57 +137,71 @@ public class Main extends Application {
             public void run() {
                 while(true){
                     try{
-                        Socket sckt = new Socket(hostName, 9053);
-                        BufferedReader br = new BufferedReader(new InputStreamReader(sckt.getInputStream()));
-                        //PrintWriter out = new PrintWriter(sckt.getOutputStream());
-                        String text = br.readLine();
-                        chatArea.setText(text);
-                        br.close();
-                        sckt.close();
-                        runChat.sleep(100);
-                    } catch (IOException ex){
+                        Socket socket = new Socket(hostName, 9053);
+                        BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        PrintWriter out = new PrintWriter(socket.getOutputStream());
 
-                    } catch (InterruptedException e){
+                        out.println(playerName);
+                        if (line != null && !line.equals("")) {
+                            out.println(line + "\n");
+                        } else {
+                            out.println(" ");
+                        }
+                        line = "";
+                        out.flush();
 
+                        String line, lines = "";
+                        //System.out.println("1");
+
+                        while ((line = br.readLine()) != null) {
+                            if (line.equals("yesYouDraw")){
+                                System.out.println("cp1");
+                                receiveIsRunning = true;
+                                System.out.println("cp2");
+                                //System.out.println("DRAW RUNNING");
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try{
+                                            youDraw();
+                                        } catch (IOException ex){
+                                            ex.printStackTrace();
+                                        }
+                                    }
+                                });
+                                //System.out.println("yes draw");
+                                //lines = lines + ("\n" + line);
+                            } else if (line.equals("noYouReceive")){
+                                System.out.println("cp3");
+                                if (gameStarted == true){
+                                    if (receiveIsRunning == false){
+                                        System.out.println("Start Receive");
+                                        receiveIsRunning = true;
+                                    }
+                                }
+                                System.out.println("cp4");
+                                //lines = lines + ("\n" + line);
+                            } else if (line.equals("gameIsStarted")){
+                                gameStarted = true;
+                            } else if (line.equals("gameIsNotStarted")){
+                                gameStarted = false;
+                            } else {
+                                lines = lines + ("\n" + line);
+                            }
+                        }
+                        chatArea.setText(lines);
+
+                        socket.close();
+                        Thread.sleep(100);
+                    } catch (java.io.IOException e) {
+                        System.out.println(e + "\t" + playerName + "\t\t" + line);
+                    } catch (InterruptedException e) {
+                        System.out.println(e);
                     }
                 }
             }
         };
         runChat = new Thread(chat);
-
-
-/*
-        Runnable go = new Runnable() {
-            @Override
-            public void run() {
-                while(true){
-                    try{
-                        //ServerSocket serverSocket = new ServerSocket(8888);
-                        while(true){
-                            Socket gotTurn = new Socket(hostName,2819);
-                            PrintWriter out = new PrintWriter(gotTurn.getOutputStream());
-                            out.println("1");
-                            out.close();
-
-                            BufferedReader br = new BufferedReader(new InputStreamReader(gotTurn.getInputStream()));
-                            String toDo = br.readLine();
-                            if (toDraw == toDo){
-                                youDraw();
-                            } else {
-                                receiveDraw();
-                            }
-
-                        }
-                    } catch (IOException ex){
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        };
-
-        Thread goRun = new Thread(go);
-        goRun.start();
-*/
     }
 
     public void startPlay() throws IOException{
@@ -205,17 +210,15 @@ public class Main extends Application {
         out.println(playerName);
         out.println(playerName + " has joined the game!");
         out.close();
+        joinServer.close();
     }
-/*
-    public void chatRun() throws IOException{
-        Socket joinAgain = new Socket(hostName,9053);
-        BufferedReader br = new BufferedReader(new InputStreamReader(joinAgain.getInputStream()));
 
-    }
-*/
     public void receiveDraw() throws IOException{
+        receiveIsRunning = true;
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.BLACK);
+        System.out.println("RECEIVE RUNNING");
+        /*
         Runnable receiveDraw = new Runnable() {
             @Override
             public void run() {
@@ -235,9 +238,11 @@ public class Main extends Application {
         };
         Thread goReceiveDraw = new Thread(receiveDraw);
         goReceiveDraw.start();
+        */
     }
 
     public void youDraw() throws IOException{
+        System.out.println("DRAW RUNNING");
         Stage stage2 = new Stage();
         Label inpAns = new Label();
         inpAns.setText("Input Answer Below");
@@ -255,12 +260,15 @@ public class Main extends Application {
                 stage2.close();
 
                 try {
-                    Socket socket = new Socket(hostName, 1234);
+                    Socket socket = new Socket(hostName, 2026);
                     PrintWriter out = new PrintWriter(socket.getOutputStream());
                     out.println(answer);
+                    out.flush();
+                    socket.close();
                 } catch (IOException ex){
                     ex.printStackTrace();
                 }
+
                 System.out.println(answer);
             }
         });
@@ -283,27 +291,30 @@ public class Main extends Application {
         String winner = "";
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.RED);
+        /*
         try{
             ServerSocket answeredOrNot = new ServerSocket(2345);
             while(notAnswered != itsAnswered){
                 Socket itAnswered = answeredOrNot.accept();
                 BufferedReader br = new BufferedReader(new InputStreamReader(itAnswered.getInputStream()));
                 itsAnswered = br.readLine();
-                canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent event) {
-                        try{
-                            Socket socket = new Socket(hostName, 3456);
-                            PrintWriter out = new PrintWriter(socket.getOutputStream());
-                            gc.fillOval(event.getX()-2,event.getY()-2,5,5);
-                            out.println(event.getX()-2);
-                            out.println(event.getY()-2);
-                            out.flush();
-                        } catch (IOException ex){
-                            ex.printStackTrace();
-                        }
-                    }
-                });
+                */
+        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                //try{
+                //    Socket socket = new Socket(hostName, 3456);
+                //    PrintWriter out = new PrintWriter(socket.getOutputStream());
+                gc.fillOval(event.getX()-2,event.getY()-2,5,5);
+                //     out.println(event.getX()-2);
+                //     out.println(event.getY()-2);
+                //    out.flush();
+                //} catch (IOException ex){
+                //   ex.printStackTrace();
+                // }
+            }
+        });
+                /*
                 itAnswered.close();
                 br.close();
             }
@@ -314,7 +325,7 @@ public class Main extends Application {
             br.close();
             answeredOrNot.close();
         } catch(IOException ex){
-          ex.printStackTrace();
+            ex.printStackTrace();
         }
 
         Stage stageWin = new Stage();
@@ -340,6 +351,7 @@ public class Main extends Application {
         notAnswered = "yes";
         itsAnswered = "no";
         stageWin.close();
+        */
     }
 
     public static void main(String[] args) {
