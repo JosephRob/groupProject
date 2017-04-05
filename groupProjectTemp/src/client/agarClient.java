@@ -133,10 +133,14 @@ public class agarClient implements Runnable {
 
     public void run(){
         while (true){
-            System.out.println("This is going still");
-
-            updatePlayers();
-            updateShapes();
+            try {
+                //System.out.println("This is going still");
+                Thread.sleep(10);
+                updatePlayers();
+                updateShapes();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
         }
     }
 }
