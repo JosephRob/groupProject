@@ -1,6 +1,7 @@
 package sample;
 
 import com.sun.corba.se.spi.activation.Server;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -31,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -39,15 +41,18 @@ public class Main extends Application {
     private TextArea chatArea;
     private TextField ansArea;
     String answer = "";
+    String winner = "";
     String toDraw = "draw";
-    String notAnswered = "yes";
-    String itsAnswered = "no";
-    String hostName = "127.0.0.1";
+    String hostName = "192.168.0.24";
     String playerName;
     Thread runChat;
     String line;
+    Boolean answered = false;
     Boolean receiveIsRunning = false;
     Boolean gameStarted = false;
+    Boolean alreadyInputAnswer = false;
+    Thread goReceiveDraw;
+    Thread runShowWin;
     @Override
     public void start(Stage primaryStage) throws Exception{
         Stage inputName = new Stage();
@@ -83,7 +88,6 @@ public class Main extends Application {
 
         inputName.setScene(new Scene(allInput, 200,150, Color.WHITE));
         inputName.show();
-
 
         Group root = new Group();
 
@@ -131,7 +135,6 @@ public class Main extends Application {
         primaryStage.setTitle("Drawing");
         primaryStage.setScene(scene);
 
-        //startPlay();
         Runnable chat = new Runnable() {
             @Override
             public void run() {
@@ -151,7 +154,6 @@ public class Main extends Application {
                         out.flush();
 
                         String line, lines = "";
-                        //System.out.println("1");
 
                         while ((line = br.readLine()) != null) {
                             if (line.equals("yesYouDraw")){
@@ -171,20 +173,36 @@ public class Main extends Application {
                                 });
                                 //System.out.println("yes draw");
                                 //lines = lines + ("\n" + line);
+                            } else if (line.equals("gameIsStarted")){
+                                gameStarted = true;
+                                //receiveIsRunning = true;
+                                //receiveDraw();
+                                //System.out.println("gameisstarted");
+                            } else if (line.equals("gameIsNotStarted")){
+                                gameStarted = false;
+                                //System.out.println("gameisnotstarted");
                             } else if (line.equals("noYouReceive")){
                                 System.out.println("cp3");
                                 if (gameStarted == true){
                                     if (receiveIsRunning == false){
                                         System.out.println("Start Receive");
+                                        receiveDraw();
                                         receiveIsRunning = true;
                                     }
                                 }
                                 System.out.println("cp4");
                                 //lines = lines + ("\n" + line);
-                            } else if (line.equals("gameIsStarted")){
-                                gameStarted = true;
-                            } else if (line.equals("gameIsNotStarted")){
-                                gameStarted = false;
+                            } else if (line.equals("gameIsAnswered")){
+                                answered = true;
+                                System.out.print("Game Won By ");
+                            } else if (line.equals("gameStillNotAnswered")){
+                                answered = false;
+                            } else if (line.contains("winneris")){
+                                String[] theLine = line.split(",");
+                                winner = theLine[theLine.length-1];
+                                System.out.println(winner);
+                            } else if (line.equals("stillNoWinner")){
+                                winner = "";
                             } else {
                                 lines = lines + ("\n" + line);
                             }
@@ -207,7 +225,7 @@ public class Main extends Application {
     public void startPlay() throws IOException{
         Socket joinServer = new Socket(hostName,1997);
         PrintWriter out = new PrintWriter(joinServer.getOutputStream());
-        out.println(playerName);
+        //out.println(playerName);
         out.println(playerName + " has joined the game!");
         out.close();
         joinServer.close();
@@ -217,28 +235,79 @@ public class Main extends Application {
         receiveIsRunning = true;
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.BLACK);
-        System.out.println("RECEIVE RUNNING");
-        /*
+        //System.out.println("RECEIVE RUNNING");
+
         Runnable receiveDraw = new Runnable() {
             @Override
             public void run() {
-                try{
-                    ServerSocket serverSc = new ServerSocket(4567);
-                    while(notAnswered != itsAnswered){
-                        Socket us = serverSc.accept();
+                while(answered == false){
+                    try {
+                        Socket us = new Socket(hostName,1904);
                         BufferedReader br = new BufferedReader(new InputStreamReader(us.getInputStream()));
-                        double xLoc = Double.parseDouble(br.readLine());
-                        double yLoc = Double.parseDouble(br.readLine());
-                        gc.fillOval(xLoc, yLoc, 5, 5);
+                        String inside = br.readLine();
+                        if (!inside.equals("")){
+                            String[] coordinates = inside.split("%");
+                            for (int i = 0; i < coordinates.length; i++){
+                                String[] coor = coordinates[i].split(",");
+                                double xLoc = Double.parseDouble(coor[0]);
+                                double yLoc = Double.parseDouble(coor[1]);
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        gc.fillOval(xLoc, yLoc, 5, 5);
+                                    }
+                                });
+                            }
+                        }
+                        Thread.sleep(100);
+                    } catch (IOException ex){
+                        ex.printStackTrace();
+                    } catch (InterruptedException e){
+                        e.printStackTrace();
                     }
-                } catch (IOException ex){
-                    ex.printStackTrace();
+                }
+                if (answered == true){
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            Stage stageWin = new Stage();
+                            Label win = new Label();
+                            win.setText(" GOT IT RIGHT!");
+                            //win.setFont(new Font(20));
+
+                            //VBox vb2 = new VBox();
+                            //vb2.setPadding(new Insets(10,10,10,10));
+                            //vb2.setSpacing(10);
+
+                            GridPane all = new GridPane();
+                            all.add(win,0,0);
+                            Group allInputt = new Group();
+                            allInputt.getChildren().add(all);
+                            //vb2.getChildren().add(all);
+
+                            stageWin.setScene(new Scene(allInputt, 500,200,Color.WHITE));
+                            stageWin.show();
+
+                            long mTime = System.currentTimeMillis();
+                            long end = mTime + 5000;
+                            while(mTime < end){
+                                mTime = System.currentTimeMillis();
+                            }
+                            gc.clearRect(0,0,800,500);
+                            stageWin.close();
+                            receiveIsRunning = false;
+                            System.out.println("sampe sini");
+                            //goReceiveDraw.stop();
+                            //break;
+                        }
+                    });
+                    //goReceiveDraw.stop();
                 }
             }
         };
-        Thread goReceiveDraw = new Thread(receiveDraw);
+
+        goReceiveDraw = new Thread(receiveDraw);
         goReceiveDraw.start();
-        */
     }
 
     public void youDraw() throws IOException{
@@ -265,6 +334,7 @@ public class Main extends Application {
                     out.println(answer);
                     out.flush();
                     socket.close();
+                    alreadyInputAnswer = true;
                 } catch (IOException ex){
                     ex.printStackTrace();
                 }
@@ -288,70 +358,72 @@ public class Main extends Application {
         stage2.setScene(popUp);
         stage2.show();
 
-        String winner = "";
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.RED);
-        /*
-        try{
-            ServerSocket answeredOrNot = new ServerSocket(2345);
-            while(notAnswered != itsAnswered){
-                Socket itAnswered = answeredOrNot.accept();
-                BufferedReader br = new BufferedReader(new InputStreamReader(itAnswered.getInputStream()));
-                itsAnswered = br.readLine();
-                */
-        canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                //try{
-                //    Socket socket = new Socket(hostName, 3456);
-                //    PrintWriter out = new PrintWriter(socket.getOutputStream());
-                gc.fillOval(event.getX()-2,event.getY()-2,5,5);
-                //     out.println(event.getX()-2);
-                //     out.println(event.getY()-2);
-                //    out.flush();
-                //} catch (IOException ex){
-                //   ex.printStackTrace();
-                // }
-            }
-        });
-                /*
-                itAnswered.close();
-                br.close();
-            }
-            Socket winn = answeredOrNot.accept();
-            BufferedReader br = new BufferedReader(new InputStreamReader(winn.getInputStream()));
-            winner = br.readLine();
-            winn.close();
-            br.close();
-            answeredOrNot.close();
-        } catch(IOException ex){
+
+        try {
+            Socket socketDraw = new Socket(hostName, 2027);
+            PrintWriter out = new PrintWriter(socketDraw.getOutputStream());
+            canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    //Socket socket = new Socket(hostName, 2026);
+                    gc.fillOval(event.getX()-2,event.getY()-2,5,5);
+                    double x = event.getX()-2;
+                    double y = event.getY()-2;
+                    String coordinate = (x + "," + y);
+                    out.println(coordinate);
+                    out.flush();
+                }
+            });
+        } catch (IOException ex){
             ex.printStackTrace();
         }
 
-        Stage stageWin = new Stage();
-        Label win = new Label();
-        win.setText(winner + " GOT IT RIGHT!");
-        win.setFont(new Font(20));
+        Runnable showWinner = new Runnable() {
+            @Override
+            public void run() {
+                if (answered == true){
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            Stage stageWin = new Stage();
+                            Label win = new Label();
+                            win.setText(" GOT IT RIGHT!");
+                            //win.setFont(new Font(20));
 
-        VBox vb2 = new VBox();
-        vb2.setPadding(new Insets(10,10,10,10));
-        vb2.setSpacing(10);
+                            VBox vb2 = new VBox();
+                            vb2.setPadding(new Insets(10,10,10,10));
+                            vb2.setSpacing(10);
 
-        vb2.getChildren().add(win);
-        Scene popUp2 = new Scene(vb2, 300,200);
+                            GridPane all = new GridPane();
+                            all.add(win,0,0);
 
-        stageWin.setScene(popUp2);
+                            vb2.getChildren().add(all);
+                            Scene popUp2 = new Scene(vb2, 500,200);
 
-        long mTime = System.currentTimeMillis();
-        long end = mTime + 5000;
-        while(mTime < end){
-            mTime = System.currentTimeMillis();
-        }
-        gc.clearRect(0,0,800,500);
-        notAnswered = "yes";
-        itsAnswered = "no";
-        stageWin.close();
-        */
+                            stageWin.setScene(popUp2);
+                            stageWin.show();
+
+                            long mTime = System.currentTimeMillis();
+                            long end = mTime + 5000;
+                            while(mTime < end){
+                                mTime = System.currentTimeMillis();
+                            }
+                            gc.clearRect(0,0,800,500);
+                            stageWin.close();
+                            receiveIsRunning = false;
+                            System.out.println("sampe sini");
+                            //goReceiveDraw.stop();
+                            //break;
+                        }
+                    });
+                    //goReceiveDraw.stop();
+                }
+            }
+        };
+        runShowWin = new Thread(showWinner);
+        runShowWin.start();
     }
 
     public static void main(String[] args) {
