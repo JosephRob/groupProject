@@ -1,5 +1,0 @@
-cd src
-javac client/*.java
-java client.Main
-rm client/*.class
-cd ..
