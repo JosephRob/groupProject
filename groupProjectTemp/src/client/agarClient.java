@@ -24,7 +24,8 @@ public class agarClient implements Runnable {
     public String username;
     public boolean terminate;
     public Stage stage;
-    public OutputStreamWriter out;
+    public BufferedWriter out;
+    public BufferedWriter outTemp;
     public ObjectInputStream ois;
     public ObjectOutputStream objOut;
     public agarPlayer yourPlayer;
@@ -46,7 +47,7 @@ public class agarClient implements Runnable {
         try {
 
             Socket socket = new Socket(IP, port);
-            out = new OutputStreamWriter(socket.getOutputStream());
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             System.out.println("HELLO");
 
             out.write("init"+"\n");
@@ -76,14 +77,15 @@ public class agarClient implements Runnable {
             public void handle(MouseEvent e){
                 try {
                     Socket socket = new Socket(IP, port);
-                    out = new OutputStreamWriter(socket.getOutputStream());
+                    out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                     out.write("mouse"+"\n");
                     out.write(username+"\n");
                     out.write(""+e.getX()+"\n");
-                    System.out.println(e.getX());
+                    //System.out.println(e.getX());
                     out.write(""+e.getY()+"\n");
-                    System.out.println(e.getY());
+                   // System.out.println(e.getY());
                     out.flush();
+                    socket.close();
                 }catch (IOException error){
                     error.printStackTrace();
                 }
@@ -99,11 +101,10 @@ public class agarClient implements Runnable {
         Platform.runLater(new Runnable() {
             public void run() {
                 Iterable<agarPlayer> iterable = players;
-                System.out.println(players.size());
+                GraphicsContext gc=canvas.getGraphicsContext2D();
+                gc.setFill(Color.WHITE);
+                gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
                 for (agarPlayer player : iterable) {
-                    GraphicsContext gc=canvas.getGraphicsContext2D();
-                    gc.setFill(Color.WHITE);
-                    gc.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
                     gc.setFill(player.color);
                     gc.fillOval(player.x-player.size/2,player.y-player.size/2, player.size, player.size);
                 }
@@ -114,16 +115,16 @@ public class agarClient implements Runnable {
     public void updatePlayers(){
         try {
             Socket socket = new Socket(IP, port);
-            out = new OutputStreamWriter(socket.getOutputStream());
+            outTemp = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
-            out.write("updatePlayers"+"\n");
-            out.write(username+"\n");
-            out.flush();
+            outTemp.write("updatePlayers"+"\n");
+            outTemp.write(username+"\n");
+            outTemp.flush();
 
             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 
             players = (ArrayList<objects.agarPlayer>)ois.readObject();
-
+            socket.close();
         }
         catch (Exception e){
             e.printStackTrace();
@@ -132,10 +133,10 @@ public class agarClient implements Runnable {
 
     public void run(){
         while (true){
-            //System.out.println("Hello");
+            System.out.println("This is going still");
 
-            updateShapes();
             updatePlayers();
+            updateShapes();
         }
     }
 }

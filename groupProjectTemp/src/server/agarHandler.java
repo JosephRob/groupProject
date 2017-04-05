@@ -27,13 +27,13 @@ public class agarHandler implements Runnable{
 
     public void run(){
         try {
-
+            Thread.sleep(15);
             InputStream is = socket.getInputStream();
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(is)
             );
             String response = in.readLine();
-            System.out.println(response);
+            //System.out.println(response);
             if(response!=null) {
                 if (response.equals("init")) {
                     //System.out.print(response);
@@ -46,37 +46,49 @@ public class agarHandler implements Runnable{
 
                     String name = in.readLine();
                     System.out.print(name);
-                    yourPlayer = new agarPlayer(0, 0, 10, Color.RED, name);
+                    yourPlayer = new agarPlayer(0, 0, 50, new Color(Math.random(),Math.random(),Math.random(),1), name);
                     agar.players.add(yourPlayer);
 
                     objOut.writeObject(agar.players);
 
                     objOut.writeObject(yourPlayer);
                     objOut.flush();
+                    socket.close();
 
-                } else if (response.equals("mouse")) {
+                } if (response.equals("mouse")) {
                     String testName = in.readLine();
-                    agarPlayer tempPlayer = null;
-                    //System.out.println(agar.players.size());
-                    for (agarPlayer player : agar.players) {
-                        if (player.getName().equals(testName)) {
-                            tempPlayer = player;
-                        }
-                    }
+                    //System.out.println("testName:"+testName);
 
-                    //System.out.println(testName);
+
+
                     mouseX = in.readLine();
-
+                    //System.out.println("mouseX:"+mouseX);
                     mouseY = in.readLine();
 
-                    tempPlayer.mouseX = Double.parseDouble(mouseX);
-                    tempPlayer.mouseY = Double.parseDouble(mouseY);
-                    //System.out.println(mouseY);
+                    if (mouseX != null && mouseY != null) {
+                        agarPlayer tempPlayer = null;
+                        //System.out.println(agar.players.size());
+                        for (int i = 0;i<agar.players.size();i++){
+                            System.out.println("name: "+agar.players.get(i).getName());
+                            System.out.println("X: "+agar.players.get(i).getX());
+                            System.out.println("Y: "+agar.players.get(i).getY());
+                            if (agar.players.get(i).getName().equals(testName)) {
+
+                                agar.players.get(i).setMouseX(Double.parseDouble(mouseX));
+                                agar.players.get(i).setMouseY(Double.parseDouble(mouseY));
+                            }
+                        }
+
+                        //System.out.println("mouseY:" + tempPlayer.mouseY);
+                    }
+                    socket.close();
 
 
                 }
-                else if (response.equals("updatePlayers")) {
+                if (response.equals("updatePlayers")) {
+                    //System.out.println("Ping");
                     String testName = in.readLine();
+                    //System.out.println("testName:"+testName);
                     agarPlayer tempPlayer = null;
                     //System.out.println(agar.players.size());
 
@@ -87,7 +99,7 @@ public class agarHandler implements Runnable{
                     }
 
                     if (tempPlayer != null) {
-                        System.out.println(tempPlayer.mouseX);
+                        //System.out.println(tempPlayer.mouseX);
                         tempPlayer.x = (tempPlayer.x * 99 * (1 + tempPlayer.size / 200) + tempPlayer.mouseX) / (1 + 99 * (1 + tempPlayer.size / 200));
                         tempPlayer.y = (tempPlayer.y * 99 * (1 + tempPlayer.size / 200) + tempPlayer.mouseY) / (1 + 99 * (1 + tempPlayer.size / 200));
                     }
@@ -97,6 +109,8 @@ public class agarHandler implements Runnable{
 
                     objOut.writeObject(agar.players);
                     objOut.flush();
+                    //System.out.println("Pong");
+                    socket.close();
                 }
             }
             socket.close();
@@ -106,5 +120,12 @@ public class agarHandler implements Runnable{
             e.printStackTrace();
         }
     }
-
+    boolean isDouble(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

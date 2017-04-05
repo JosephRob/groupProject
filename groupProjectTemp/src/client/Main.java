@@ -1,6 +1,7 @@
 package client;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -174,9 +175,12 @@ public class Main extends Application {
                         }
                     }
                     socket.close();
+                    Platform.runLater(new Runnable() {
+                        @Override public void run() {
+                            available.clear();
 
-                    available.clear();
                     available.addAll(temp);
+                        }});
                 }
                 catch (Exception e){}
             }
