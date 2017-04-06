@@ -229,6 +229,10 @@ public class Main extends Application {
                                 Thread agar=new Thread(new agarClient(selectedCells.getPort(), IP, username));
                                 agar.start();
                                 break;
+                            case "draw":
+                                Thread draw = new Thread(new drawClient(selectedCells.getPort(), IP, username));
+                                draw.start();
+                                break;
                             default:
                                 break;
                         }

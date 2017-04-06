@@ -228,6 +228,15 @@ public class Main {
                                     serverMap.put(serverstart,"agar"+serverstart);
                                     threads.put("agar"+serverstart,defaultAgar);
                                     System.out.println("\tadded agar"+serverstart);
+                                } else if (selection.equals("draw")){
+                                    ServerSocket a = new ServerSocket(0);
+                                    int serverstart = a.getLocalPort();
+                                    a.close();
+                                    Thread defaultDraw = new Thread(new draw(serverstart));
+                                    defaultDraw.start();
+                                    serverMap.put(serverstart, "draw" + serverstart);
+                                    threads.put("Draw" + serverstart, defaultDraw);
+                                    System.out.println("\tadded agar" + serverstart);
                                 }
                                 else{System.out.println("Invalid selection");}
                                 break;
@@ -296,7 +305,15 @@ public class Main {
                                 serverMap.put(serverstart,"agar"+serverstart);
                                 threads.put("agar"+serverstart,defaultAgar);
                                 System.out.println("\tadded agar"+serverstart);
-
+                                //add draw
+                                a = new ServerSocket(0);
+                                serverstart = a.getLocalPort();
+                                a.close();
+                                Thread defaultDraw = new Thread(new draw(serverstart));
+                                defaultDraw.start();
+                                serverMap.put(serverstart, "draw" + serverstart);
+                                threads.put("agar" + serverstart, defaultAgar);
+                                System.out.println("\tadded draw" + serverstart);
                                 break;
                             case "terminate":
                                 System.out.println("exit (Y/N)");
