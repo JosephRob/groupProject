@@ -14,20 +14,20 @@ public class Main extends Application {
     boolean check2 = false;
     boolean answered = false;
     boolean playagain = false;
-    int answerToStart = 1000000000;
+    String historyOfDraw = "";
     String realAnswer = "";
     String historyOfText = "";
+    String winner;
     Thread updtChat;
     Thread recDraw;
     Thread snDraw;
+    int answerToStart = 1000000000;
     int numOfPlayer = 0;
     int numbOfStart = 0;
     int run = 0;
-    String historyOfDraw = "";
     ServerSocket inputAnswerSocket;
     ServerSocket sendTheDraw;
     ServerSocket inputDraw;
-    String winner;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -237,15 +237,15 @@ public class Main extends Application {
         if (operator == 1){
             answerToStart = numb1 + numb2;
             String question = numb1 + " + " + numb2;
-            historyOfText += "\n\t\t   ANSWER QUESTION BELOW\n\t\t\t\t  " + question + "\n";
+            historyOfText += "\n\t\t   ANSWER QUESTION BELOW\n\t\t\t\t  " + question + "\n TYPE JOIN BEFORE ANSWERING!";
         } else if (operator == 2){
             answerToStart = numb1 - numb2;
             String question = numb1 + " - " + numb2;
-            historyOfText += "\n\t\t   ANSWER QUESTION BELOW\n\t\t\t\t  " + question + "\n";
+            historyOfText += "\n\t\t   ANSWER QUESTION BELOW\n\t\t\t\t  " + question + "\n TYPE JOIN BEFORE ANSWERING!";
         } else {
             answerToStart = numb1 * numb2;
             String question = numb1 + " x " + numb2;
-            historyOfText += "\n\t\t   ANSWER QUESTION BELOW\n\t\t\t\t  " + question + "\n";
+            historyOfText += "\n\t\t   ANSWER QUESTION BELOW\n\t\t\t\t  " + question + "\n TYPE JOIN BEFORE ANSWERING!";
         }
     }
 
