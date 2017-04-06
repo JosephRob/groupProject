@@ -1,32 +1,28 @@
 package sample;
 
-import com.sun.corba.se.spi.activation.Server;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
-import oracle.jrockit.jfr.jdkevents.ThrowableTracer;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class Main extends Application {
     boolean gameStarted = false;
     boolean check = false;
+    boolean check2 = false;
     boolean answered = false;
+    boolean playagain = false;
     int answerToStart = 1000000000;
     String realAnswer = "";
-    ArrayList<String> players;
     String historyOfText = "";
     Thread updtChat;
     Thread recDraw;
     Thread snDraw;
-    int numOfPlayer = 1;
+    int numOfPlayer = 0;
+    int numbOfStart = 0;
+    int run = 0;
     String historyOfDraw = "";
     ServerSocket inputAnswerSocket;
     ServerSocket sendTheDraw;
@@ -47,49 +43,14 @@ public class Main extends Application {
                     try{
                         Socket client = serverSocket.accept();
                         BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                        //String name = br.readLine();
                         String sent = br.readLine();
-                        if (historyOfText == ""){
-                            historyOfText += sent + "\n";
-                        } else {
-                            historyOfText += "\n" + sent + "\n";
-                        }
+                        historyOfText += sent + "\n";
                         client.close();
-                        //Thread.sleep(1000);
-                        if (numOfPlayer == 2){
-                            long mTime = System.currentTimeMillis();
-                            long end = mTime + 1500;
-                            while(mTime < end){
-                                mTime = System.currentTimeMillis();
-                            }
-                            //Thread.sleep(1500);
-                            historyOfText += "GAME STARTS IN ->  3\t";
-                            mTime = System.currentTimeMillis();
-                            end = mTime + 1000;
-                            while(mTime < end){
-                                mTime = System.currentTimeMillis();
-                            }
-                            //updtChat.sleep(1000);
-                            historyOfText += "\t->\t2\t";
-                            mTime = System.currentTimeMillis();
-                            end = mTime + 1000;
-                            while(mTime < end){
-                                mTime = System.currentTimeMillis();
-                            }
-                            //updtChat.sleep(1000);
-                            historyOfText += "\t->\t1";
-                            mTime = System.currentTimeMillis();
-                            end = mTime + 1000;
-                            while(mTime < end){
-                                mTime = System.currentTimeMillis();
-                            }
-                            //updtChat.sleep(1000);
-                            historyOfText += "\n\t\t\t\tENJOY!!\n";
-                            createNumb();
-                            gameStarted = true;
-                        }
-                        System.out.println(numOfPlayer);
                         numOfPlayer++;
+                        if (numOfPlayer == 2){
+                            startGame();
+                            run++;
+                        }
                     } catch (IOException ex){
 
                     }
@@ -104,11 +65,10 @@ public class Main extends Application {
             @Override
             public void run() {
                 try {
-                    Socket clientDr = inputDraw.accept();
-                    BufferedReader br = new BufferedReader(new InputStreamReader(clientDr.getInputStream()));
                     while(answered == false){
+                        Socket clientDr = inputDraw.accept();
+                        BufferedReader br = new BufferedReader(new InputStreamReader(clientDr.getInputStream()));
                         String pos = br.readLine();
-                        System.out.println(pos);
                         historyOfDraw += pos + "%";
                     }
                     answered = false;
@@ -157,21 +117,34 @@ public class Main extends Application {
 
                             String username = br.readLine();
                             String line = br.readLine();
-			    if (!(line.equals(" "))) {
+
+                            if (!(line.equals(" "))) {
                                 if (line.equals(Integer.toString(answerToStart))){
                                     answerToStart = 1000000000;
                                     historyOfText += "\n" + username + ":\t" + line;
                                     historyOfText += "\n\t\t\t  " + username + "'s About To Draw!\n";
                                     out.println(historyOfText);
                                     out.println("yesYouDraw");
-                                    System.out.println("cp1");
                                     check = true;
-                                    System.out.println("cp2");
-                                } if (line.equals(realAnswer)){
+                                } else if (line.equals(realAnswer)){
                                     answered = true;
-                                    historyOfText += "\n" + username + ":\t" + line;
+                                    historyOfText += "\n" + username + ":\t" + line + "\n";
+                                    historyOfText += "\n\t\t\t" + username + " HAS WON THE GAME!" + "\n";
+                                    gameStarted = false;
+                                    playagain = true;
                                     winner = username;
-                                    System.out.println(username + "answered");
+                                    historyOfText += "ENTER 'START' TO PLAY AGAIN (MIN. 2 PLAYERS TO START)\n";
+                                } else if (line.equals("start")){
+                                    if (playagain == true){
+                                        numbOfStart++;
+                                        historyOfText += "\n" + username + ":\t" + line + "\n";
+                                        if(numbOfStart == 2){
+                                            historyOfDraw = "";
+                                            playagain = false;
+                                            numbOfStart = 0;
+                                            check2 = true;
+                                        }
+                                    }
                                 } else {
                                     historyOfText += "\n" + username + ":\t" + line;
                                     out.println(historyOfText);
@@ -186,8 +159,7 @@ public class Main extends Application {
                                 }
                             }
 
-			    if (answered == true){
-                                //out.println(historyOfText);
+                            if (answered == true){
                                 out.println("gameIsAnswered");
                                 out.println("winneris," + winner);
                                 if (x > numOfPlayer){
@@ -199,14 +171,22 @@ public class Main extends Application {
                                 out.println("gameStillNotAnswered");
                                 out.println("stillNoWinner");
                             }
-
                             out.flush();
                             socket.close();
                             if (check == true){
                                 answerInput();
-                                recDraw.start();
-                                snDraw.start();
+                                if (run == 1){
+                                    recDraw.start();
+                                    snDraw.start();
+                                }
                                 check = false;
+                            }
+                            if (check2 == true){
+                                answered = false;
+                                historyOfText = "";
+                                startGame();
+                                check2 = false;
+                                run++;
                             }
                         }
                     } catch (Exception e){
@@ -218,6 +198,35 @@ public class Main extends Application {
 
         updtChat = new Thread(chat);
         updtChat.start();
+    }
+
+    public void startGame(){
+        long mTime = System.currentTimeMillis();
+        long end = mTime + 1500;
+        while(mTime < end){
+            mTime = System.currentTimeMillis();
+        }
+        historyOfText += "GAME STARTS IN ->  3\t";
+        mTime = System.currentTimeMillis();
+        end = mTime + 1000;
+        while(mTime < end){
+            mTime = System.currentTimeMillis();
+        }
+        historyOfText += "\t->\t2\t";
+        mTime = System.currentTimeMillis();
+        end = mTime + 1000;
+        while(mTime < end){
+            mTime = System.currentTimeMillis();
+        }
+        historyOfText += "\t->\t1";
+        mTime = System.currentTimeMillis();
+        end = mTime + 1000;
+        while(mTime < end){
+            mTime = System.currentTimeMillis();
+        }
+        historyOfText += "\n\t\t\t\tENJOY!!\n";
+        createNumb();
+        gameStarted = true;
     }
 
     public void createNumb(){
@@ -246,12 +255,10 @@ public class Main extends Application {
             BufferedReader br = new BufferedReader(new InputStreamReader(openForAnswer.getInputStream()));
             realAnswer = br.readLine();
             char answerInChar[] = realAnswer.toCharArray();
-            String underscore = "";
             historyOfText += "\n" + answerInChar.length + " characters, begins with " +
                     Character.toUpperCase(answerInChar[0]) + " ends with " +
-                    Character.toUpperCase(answerInChar[answerInChar.length-1]);
+                    Character.toUpperCase(answerInChar[answerInChar.length-1]) + "\n";
             openForAnswer.close();
-            System.out.println(realAnswer);
         } catch (IOException ex){
 
         }
