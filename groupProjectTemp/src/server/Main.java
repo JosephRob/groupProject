@@ -267,7 +267,7 @@ public class Main {
                                 System.out.println("To create demo set of servers: demo");
                                 System.out.println("To exit: terminate");
                                 break;
-                            case "d":
+                            case "demo":
                                 //add one of each
                                 //add room
                                 ServerSocket a=new ServerSocket(0);
@@ -312,8 +312,17 @@ public class Main {
                                 Thread defaultDraw = new Thread(new draw(serverstart));
                                 defaultDraw.start();
                                 serverMap.put(serverstart, "draw" + serverstart);
-                                threads.put("agar" + serverstart, defaultAgar);
+                                threads.put("draw" + serverstart, defaultDraw);
                                 System.out.println("\tadded draw" + serverstart);
+                                //add shootyGame
+                                a = new ServerSocket(0);
+                                serverstart = a.getLocalPort();
+                                a.close();
+                                Thread shootyGameThread = new Thread(new ShootyGameServer(serverstart));
+                                shootyGameThread.start();
+                                serverMap.put(serverstart, "shootyGame" + serverstart);
+                                threads.put("shootyGame" + serverstart, shootyGameThread);
+                                System.out.println("\tadded shootyGame" + serverstart);
                                 break;
                             case "terminate":
                                 System.out.println("exit (Y/N)");
