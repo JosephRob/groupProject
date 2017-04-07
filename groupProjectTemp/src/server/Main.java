@@ -267,7 +267,7 @@ public class Main {
                                 System.out.println("To create demo set of servers: demo");
                                 System.out.println("To exit: terminate");
                                 break;
-                            case "demo":
+                            case "d":
                                 //add one of each
                                 //add room
                                 ServerSocket a=new ServerSocket(0);
