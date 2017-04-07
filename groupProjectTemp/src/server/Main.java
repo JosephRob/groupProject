@@ -236,7 +236,7 @@ public class Main {
                                     defaultDraw.start();
                                     serverMap.put(serverstart, "draw" + serverstart);
                                     threads.put("Draw" + serverstart, defaultDraw);
-                                    System.out.println("\tadded agar" + serverstart);
+                                    System.out.println("\tadded draw" + serverstart);
                                 }
                                 else{System.out.println("Invalid selection");}
                                 break;
