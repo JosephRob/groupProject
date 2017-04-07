@@ -3,7 +3,7 @@ package server;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 
-import storage.*;
+import objects.*;
 
 import java.io.*;
 
