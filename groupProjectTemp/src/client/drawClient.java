@@ -137,6 +137,7 @@ public class drawClient implements Runnable{
             root.getChildren().add(display);
             primaryStage.setTitle("Drawing " + (port-1999));
             primaryStage.setScene(scene);
+            primaryStage.show();	
         } catch (IOException ex){
             ex.printStackTrace();
         }
