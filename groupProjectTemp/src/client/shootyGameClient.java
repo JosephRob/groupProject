@@ -32,6 +32,7 @@ import objects.*;
  * Created by lex on 07/04/17.
  */
 public class shootyGameClient implements Runnable{
+    Boolean inGame;
     String name;
     int hits, port;
     Canvas feild;
@@ -48,6 +49,7 @@ public class shootyGameClient implements Runnable{
     Stage stage;
 
     public shootyGameClient(int port, String IP, String name){
+        inGame=false;
         this.port=port;
         this.IP=IP;
         this.name=name;
@@ -120,23 +122,25 @@ public class shootyGameClient implements Runnable{
             @Override
             public void handle(KeyEvent event) {
                 //System.out.println("key: "+event.getCode());
-                switch (event.getCode()){
-                    case RIGHT:
-                    case D:
-                        AX=10.0;
-                        break;
-                    case LEFT:
-                    case A:
-                        AX=-10.0;
-                        break;
-                    case UP:
-                    case W:
-                        AY=-10.0;
-                        break;
-                    case DOWN:
-                    case S:
-                        AY=10.0;
-                        break;
+                if (inGame) {
+                    switch (event.getCode()) {
+                        case RIGHT:
+                        case D:
+                            AX = 10.0;
+                            break;
+                        case LEFT:
+                        case A:
+                            AX = -10.0;
+                            break;
+                        case UP:
+                        case W:
+                            AY = -10.0;
+                            break;
+                        case DOWN:
+                        case S:
+                            AY = 10.0;
+                            break;
+                    }
                 }
             }
         });
@@ -200,6 +204,7 @@ public class shootyGameClient implements Runnable{
                             out.writeObject(name);
                             out.writeObject(me);
                             out.flush();
+                            inGame=(Boolean)in.readObject();
 
                             final String content=in.readObject()+"";
                             Platform.runLater(new Runnable() {
@@ -212,23 +217,24 @@ public class shootyGameClient implements Runnable{
                                 }
                             });
 
-                            ShootyGameDude temp;
-                            while((temp=(ShootyGameDude)in.readObject())!=null){
-                                final ShootyGameDude drawDude=temp;
-                                Platform.runLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        GraphicsContext gc=feild.getGraphicsContext2D();
-                                        gc.setFill(Color.BLUE);
-                                        gc.fillOval(drawDude.X,drawDude.Y,20,20);
-                                    }
-                                });
+                            if (inGame) {
+                                ShootyGameDude temp;
+                                while ((temp = (ShootyGameDude) in.readObject()) != null) {
+                                    final ShootyGameDude drawDude = temp;
+                                    Platform.runLater(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            GraphicsContext gc = feild.getGraphicsContext2D();
+                                            gc.setFill(Color.BLUE);
+                                            gc.fillOval(drawDude.X, drawDude.Y, 20, 20);
+                                        }
+                                    });
+                                }
                             }
 
                             socket.close();
 
                             move();
-                            //moveOthers();
 
                             Platform.runLater(new Runnable() {
                                 @Override
@@ -240,10 +246,12 @@ public class shootyGameClient implements Runnable{
                             });
                         }
                         else{
+                            inGame=false;
                             me=new ShootyGameDude(feild.getWidth()/2,feild.getHeight()/2);
                             out.writeObject(name);
                             out.writeObject(me);
                             out.flush();
+
                             final String text=in.readObject()+"";
 
                             Platform.runLater(new Runnable() {
@@ -269,26 +277,26 @@ public class shootyGameClient implements Runnable{
 
     }
     private void move(){
-        me.VX=(AX+4*me.VX)/5;
-        me.VY=(AY+4*me.VY)/5;
-        me.X+=me.VX;
-        me.Y+=me.VY;
-        if (me.X>700){
-            me.X=0.0;
-        }
-        else if (me.X<0){
-            me.X=700.0;
-        }
-        if (me.Y>500){
-            me.Y=0.0;
-        }
-        else if (me.Y<0){
-            me.Y=500.0;
-        }
-        for (ShootyGameTarget bump:others){
-            if (distance(me.X,me.Y,bump.x,bump.y)<20){
-                me.score-=2;
-                hit=others.indexOf(bump);
+        if (inGame) {
+            me.VX = (AX + 4 * me.VX) / 5;
+            me.VY = (AY + 4 * me.VY) / 5;
+            me.X += me.VX;
+            me.Y += me.VY;
+            if (me.X > 700) {
+                me.X = 0.0;
+            } else if (me.X < 0) {
+                me.X = 700.0;
+            }
+            if (me.Y > 500) {
+                me.Y = 0.0;
+            } else if (me.Y < 0) {
+                me.Y = 500.0;
+            }
+            for (ShootyGameTarget bump : others) {
+                if (distance(me.X, me.Y, bump.x, bump.y) < 20) {
+                    me.score -= 2;
+                    hit = others.indexOf(bump);
+                }
             }
         }
     }
@@ -302,25 +310,26 @@ public class shootyGameClient implements Runnable{
             gc.fillOval(others.get(x).x%700-6,others.get(x).y%500-6,12,12);
     }
     private void drawDude(GraphicsContext gc){
-        gc.setFill(Color.GREEN);
-        gc.fillOval(me.X,me.Y,20,20);
-        gc.setStroke(Color.DARKGREEN);
-        gc.strokeOval(me.X,me.Y,20,20);
-        if (click){
-            gc.setStroke(Color.RED);
-            gc.strokeLine(me.X+10,me.Y+10,MouseX,MouseY);
-            click=false;
-            hits();
-        }
-        else {
-            gc.setStroke(Color.BLACK);
-            double x,y;
-            double mag=Math.pow(Math.pow(MouseX-me.X,2)+Math.pow(MouseY-me.Y,2),0.5);
-            //System.out.println(mag);
-            x=20*(MouseX-me.X)/mag;
-            y=20*(MouseY-me.Y)/mag;
+        if(inGame) {
+            gc.setFill(Color.GREEN);
+            gc.fillOval(me.X, me.Y, 20, 20);
+            gc.setStroke(Color.DARKGREEN);
+            gc.strokeOval(me.X, me.Y, 20, 20);
+            if (click) {
+                gc.setStroke(Color.RED);
+                gc.strokeLine(me.X + 10, me.Y + 10, MouseX, MouseY);
+                click = false;
+                hits();
+            } else {
+                gc.setStroke(Color.BLACK);
+                double x, y;
+                double mag = Math.pow(Math.pow(MouseX - me.X, 2) + Math.pow(MouseY - me.Y, 2), 0.5);
+                //System.out.println(mag);
+                x = 20 * (MouseX - me.X) / mag;
+                y = 20 * (MouseY - me.Y) / mag;
 
-            gc.strokeLine(me.X+10,me.Y+10,me.X+x+10,me.Y+y+10);
+                gc.strokeLine(me.X + 10, me.Y + 10, me.X + x + 10, me.Y + y + 10);
+            }
         }
     }
     private void hits(){

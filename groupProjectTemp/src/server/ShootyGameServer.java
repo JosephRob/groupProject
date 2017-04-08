@@ -18,14 +18,15 @@ import java.util.Random;
  * Created by lex on 04/04/17.
  */
 public class ShootyGameServer implements Runnable{
+    boolean going;
     int port;
     ObservableList<ShootyGameTarget> targets=FXCollections.observableArrayList();
     HashMap<String, ShootyGameDude> players=new HashMap<>();
-    HashMap<String, Integer> scores=new HashMap<>();
     double difficulty;
     double startTime;
 
     public ShootyGameServer(int Port){
+        going=true;
         startTime=System.currentTimeMillis();
         difficulty=5.0;
         this.port=Port;
@@ -73,6 +74,7 @@ public class ShootyGameServer implements Runnable{
                     double time=((System.currentTimeMillis()-startTime)/1000)%90;
                     //System.out.println(time);
                     if (time>=30) {
+                        going=true;
 
                         if (targets.isEmpty()) {
                             Random rand=new Random(System.nanoTime());
@@ -110,7 +112,11 @@ public class ShootyGameServer implements Runnable{
                         String currentUser = (String) in.readObject();
                         ShootyGameDude current = (ShootyGameDude) in.readObject();
 
-                        if(players.containsKey(currentUser))players.put(currentUser,current);
+                        if(players.containsKey(currentUser)){
+                            players.put(currentUser,current);
+                            out.writeObject(true);
+                        }
+                        else out.writeObject(false);
 
                         String table="";
                         for (String user:players.keySet()){
@@ -131,8 +137,11 @@ public class ShootyGameServer implements Runnable{
                         socket.close();
                     }
                     else{//this is where we join
-                        //System.out.println("start");
-
+                        if (going){
+                            targets.clear();
+                            players.clear();
+                        }
+                        going=false;
                         if (players.size()!=0){
                             if(new File("best.txt").exists()) {
                                 BufferedReader br = new BufferedReader(new FileReader(new File("best.txt")));
@@ -163,8 +172,7 @@ public class ShootyGameServer implements Runnable{
                         String name=""+in.readObject();
                         ShootyGameDude temp=(ShootyGameDude)in.readObject();
 
-                        if (scores.containsKey(name)==false) {
-                            scores.put(name,0);
+                        if (players.containsKey(name)==false) {
                             players.put(name,temp);
                         }
                         BufferedReader br=new BufferedReader(new FileReader(new File("best.txt")));

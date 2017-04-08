@@ -207,16 +207,16 @@ public class Main {
                                     threads.put("chat"+serverstart,defaultChat);
                                     System.out.println("\tadded chat"+serverstart);
                                 }
-                                else if (selection.equals("ticTacToe")){
+                                else if (selection.equals("tictactoe")){
                                     //add ticTacToe
                                     ServerSocket a=new ServerSocket(0);
                                     int serverstart=a.getLocalPort();
                                     a.close();
                                     Thread defaultTictactoe=new Thread(new ticTacToe(serverstart));
                                     defaultTictactoe.start();
-                                    serverMap.put(serverstart,"ticTacToe"+serverstart);
-                                    threads.put("ticTacToe"+serverstart,defaultTictactoe);
-                                    System.out.println("\tadded ticTacToe"+serverstart);
+                                    serverMap.put(serverstart,"tictactoe"+serverstart);
+                                    threads.put("tictactoe"+serverstart,defaultTictactoe);
+                                    System.out.println("\tadded tictactoe"+serverstart);
                                 }
                                 else if (selection.equals("agar")){
                                     //add agar
@@ -237,15 +237,15 @@ public class Main {
                                     serverMap.put(serverstart, "draw" + serverstart);
                                     threads.put("draw" + serverstart, defaultDraw);
                                     System.out.println("\tadded draw" + serverstart);
-                                } else if (selection.equals("shootyGame")){
+                                } else if (selection.equals("shootygame")){
                                     ServerSocket a = new ServerSocket(0);
                                     int serverstart = a.getLocalPort();
                                     a.close();
                                     Thread shootyGame = new Thread(new ShootyGameServer(serverstart));
                                     shootyGame.start();
-                                    serverMap.put(serverstart, "shootyGame" + serverstart);
-                                    threads.put("shootyGame" + serverstart, shootyGame);
-                                    System.out.println("\tadded shootyGame" + serverstart);
+                                    serverMap.put(serverstart, "shootygame" + serverstart);
+                                    threads.put("shootygame" + serverstart, shootyGame);
+                                    System.out.println("\tadded shootygame" + serverstart);
                                 }
                                 else{System.out.println("Invalid selection");}
                                 break;
@@ -253,7 +253,7 @@ public class Main {
                                 selection=input.split(" ")[1]+input.split(" ")[2];
                                 int number=Integer.parseInt(input.split(" ")[2]);
                                 if (threads.containsKey(selection)){
-                                    System.out.println("Warning: shutting down a server while a user is connected will not disconnect the user, but will prevent new users from joining");
+                                    System.out.println("Warning: shutting down a server while a user is connected will not disconnect the \nuser, but will prevent new users from joining.");
                                     System.out.println("\tremoving "+selection);
                                     threads.remove(selection);
                                     serverMap.remove(number);
@@ -329,9 +329,9 @@ public class Main {
                                 a.close();
                                 Thread shootyGameThread = new Thread(new ShootyGameServer(serverstart));
                                 shootyGameThread.start();
-                                serverMap.put(serverstart, "shootyGame" + serverstart);
-                                threads.put("shootyGame" + serverstart, shootyGameThread);
-                                System.out.println("\tadded shootyGame" + serverstart);
+                                serverMap.put(serverstart, "shootygame" + serverstart);
+                                threads.put("shootygame" + serverstart, shootyGameThread);
+                                System.out.println("\tadded shootygame" + serverstart);
                                 break;
                             case "terminate":
                                 System.out.println("exit (Y/N)");
