@@ -233,6 +233,10 @@ public class Main extends Application {
                                 Thread draw = new Thread(new drawClient(selectedCells.getPort(), IP, username));
                                 draw.start();
                                 break;
+                            case "shootyGame":
+                                Thread shootyGame = new Thread(new shootyGameClient(selectedCells.getPort(), IP, username));
+                                shootyGame.start();
+                                break;
                             default:
                                 break;
                         }

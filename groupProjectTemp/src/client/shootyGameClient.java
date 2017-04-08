@@ -41,13 +41,15 @@ public class shootyGameClient implements Runnable{
     int hit;
     double modify;
     Label gameState;
+    String IP;
 
     ObservableList<ShootyGameTarget> others= FXCollections.observableArrayList();
     ShootyGameDude me;
     Stage stage;
 
-    public shootyGameClient(int port, String name){
+    public shootyGameClient(int port, String IP, String name){
         this.port=port;
+        this.IP=IP;
         this.name=name;
         stage=new Stage();
         terminate=false;
@@ -177,7 +179,7 @@ public class shootyGameClient implements Runnable{
                     while (terminate==false){
                         Thread.sleep(100);
 
-                        Socket socket=new Socket("localHost",port);
+                        Socket socket=new Socket(IP,port);
                         ObjectInputStream in=new ObjectInputStream(socket.getInputStream());
                         ObjectOutputStream out=new ObjectOutputStream(socket.getOutputStream());
 
@@ -252,6 +254,7 @@ public class shootyGameClient implements Runnable{
                                 }
                             });
                         }
+                        socket.close();
                     }
                 }
                 catch (Exception e){}

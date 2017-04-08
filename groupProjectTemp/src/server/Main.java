@@ -235,8 +235,17 @@ public class Main {
                                     Thread defaultDraw = new Thread(new draw(serverstart));
                                     defaultDraw.start();
                                     serverMap.put(serverstart, "draw" + serverstart);
-                                    threads.put("Draw" + serverstart, defaultDraw);
+                                    threads.put("draw" + serverstart, defaultDraw);
                                     System.out.println("\tadded draw" + serverstart);
+                                } else if (selection.equals("shootyGame")){
+                                    ServerSocket a = new ServerSocket(0);
+                                    int serverstart = a.getLocalPort();
+                                    a.close();
+                                    Thread shootyGame = new Thread(new ShootyGameServer(serverstart));
+                                    shootyGame.start();
+                                    serverMap.put(serverstart, "shootyGame" + serverstart);
+                                    threads.put("shootyGame" + serverstart, shootyGame);
+                                    System.out.println("\tadded shootyGame" + serverstart);
                                 }
                                 else{System.out.println("Invalid selection");}
                                 break;

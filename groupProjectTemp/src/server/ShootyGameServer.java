@@ -11,7 +11,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import java.text.DecimalFormat;
-
 import java.util.HashMap;
 import java.util.Random;
 
@@ -66,8 +65,10 @@ public class ShootyGameServer implements Runnable{
     public void run() {
         while (true){
             try {
+
                 ServerSocket serverSocket=new ServerSocket(port);
                 while (true){
+
                     Socket socket=serverSocket.accept();
                     double time=((System.currentTimeMillis()-startTime)/1000)%90;
                     //System.out.println(time);
@@ -131,6 +132,7 @@ public class ShootyGameServer implements Runnable{
                     }
                     else{//this is where we join
                         //System.out.println("start");
+
                         if (players.size()!=0){
                             if(new File("best.txt").exists()) {
                                 BufferedReader br = new BufferedReader(new FileReader(new File("best.txt")));
