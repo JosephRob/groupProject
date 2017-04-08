@@ -15,7 +15,8 @@ import java.util.HashMap;
 import java.util.Random;
 
 /**
- * Created by lex on 04/04/17.
+ * @author Joseph
+ * @date 17/4/8
  */
 public class ShootyGameServer implements Runnable{
     boolean going;
@@ -25,6 +26,12 @@ public class ShootyGameServer implements Runnable{
     double difficulty;
     double startTime;
 
+    /**
+     * Sets up port as given.
+     * Creates thread to use move.
+     *
+     * @param Port
+     */
     public ShootyGameServer(int Port){
         going=true;
         startTime=System.currentTimeMillis();
@@ -49,6 +56,10 @@ public class ShootyGameServer implements Runnable{
         });
         moving.start();
     }
+
+    /**
+     * Moves all targets.
+     */
     private void move(){
         int take=0;
         for (int x=0;x<targets.size();x++){
@@ -62,6 +73,10 @@ public class ShootyGameServer implements Runnable{
         for (int x=0;x<take;x++)
             targets.add(new ShootyGameTarget(rand.nextDouble()*700,rand.nextDouble()*500,difficulty));
     }
+
+    /**
+     * Handles input from ShootyGameClient and sends back respective data.
+     */
     @Override
     public void run() {
         while (true){

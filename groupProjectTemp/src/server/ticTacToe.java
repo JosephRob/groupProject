@@ -1,15 +1,18 @@
 package server;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
+
 import java.net.ServerSocket;
 import java.net.Socket;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by lex on 18/03/17.
+ * @author Joseph
+ * @date 17/4/8
  */
 public class ticTacToe implements Runnable {
     char[][] place;
@@ -18,6 +21,11 @@ public class ticTacToe implements Runnable {
     List<String> in;
     String current;
 
+    /**
+     * sets board and port
+     *
+     * @param port
+     */
     public ticTacToe(int port){
         count=0;
         in=new ArrayList<>();
@@ -27,6 +35,10 @@ public class ticTacToe implements Runnable {
             for (int y=0;y<3;y++)
                 place[x][y]='e';
     }
+
+    /**
+     * Handles input from ticTacToeClient and sends back respective data.
+     */
     @Override
     public void run() {
         while (true){

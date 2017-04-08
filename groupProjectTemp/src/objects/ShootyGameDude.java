@@ -3,11 +3,19 @@ package objects;
 import java.io.Serializable;
 
 /**
- * Created by lex on 04/04/17.
+ * @author Joseph
+ * @date 17/4/8
  */
 public class ShootyGameDude implements Serializable{
     public Double X,Y,VX,VY;
     public int score;
+
+    /**
+     * default counstructor of ShootyGameDude.
+     * x and y are provided and velocity and score are zero
+     * @param X
+     * @param Y
+     */
     public ShootyGameDude(double X, double Y){
         this.X=X;
         this.Y=Y;
@@ -15,5 +23,4 @@ public class ShootyGameDude implements Serializable{
         VY=0.0;
         score=0;
     }
-
 }

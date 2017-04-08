@@ -1,22 +1,34 @@
 package server;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
+
 import java.net.ServerSocket;
 import java.net.Socket;
+
 import java.util.HashMap;
 
 /**
- * Created by lex on 16/03/17.
+ * @author Joseph
+ * @date 17/4/8
  */
 public class room implements Runnable{
     int port;
     HashMap <String,Integer[]> positions=new HashMap<>();
     HashMap <String,Double[]> colors=new HashMap<>();
+
+    /**
+     * sets port on initialization
+     * @param port
+     */
     public room(int port){
         this.port=port;
     }
+
+    /**
+     * Handles input and sends room data to others.
+     */
     @Override
     public void run() {
         while (true){try {

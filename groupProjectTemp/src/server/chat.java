@@ -1,21 +1,33 @@
 package server;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Created by lex on 16/03/17.
+ * @author Joseph
+ * @date 17/4/8
  */
 public class chat implements Runnable{
     int port;
     String history;
-    chat(int port){
+
+    /**
+     * default constructor
+     *
+     * @param port
+     */
+    public chat(int port){
         this.port=port;
         history="";
     }
+
+    /**
+     * updates and sends chat information.
+     */
     public void run(){
         while (true){try {
             ServerSocket serverSocket=new ServerSocket(port);

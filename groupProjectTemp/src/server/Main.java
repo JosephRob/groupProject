@@ -1,12 +1,17 @@
 package server;
 
 import java.io.*;
-import java.net.InetAddress;
+
 import java.net.NetworkInterface;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
 
+import java.util.*;
+/**
+ * @author Joseph
+ * @date 17/4/8
+ */
 public class Main {
     private static HashMap<String,String> Users=new HashMap<>();
     private static HashMap<Integer,String> UserIDs=new HashMap<>();
@@ -16,6 +21,13 @@ public class Main {
     static int joinPort=1111,
             listPort=1112;
     static int keyCode=0;
+
+    /**
+     * Creates main interface.
+     * Starts threads.
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         try {
             String adressName = "";
@@ -356,6 +368,12 @@ public class Main {
         });
         maintain.start();
     }
+
+    /**
+     * Reads in list of accounts from file.
+     *
+     * @return HashMap of users accounts
+     */
     private HashMap<String,String> setUsers(){
         HashMap<String,String> temp=new HashMap<>();
 
@@ -380,6 +398,13 @@ public class Main {
         catch (IOException e){}
         return temp;
     }
+
+    /**
+     * encodes account data
+     *
+     * @param input
+     * @return encoded input
+     */
     private int[] code(String input){
         int[] output=new int[input.length()];
         Random encode=new Random(passwordKey);
@@ -388,6 +413,13 @@ public class Main {
         }
         return output;
     }
+
+    /**
+     * decodes input
+     *
+     * @param input
+     * @return
+     */
     private char[] decode(String input){
         if (input.length()==0)return null;
         char[] output=new char[input.split(",").length];
@@ -397,6 +429,11 @@ public class Main {
         }
         return output;
     }
+
+    /**
+     * uses code() to update people.txt
+     * @throws IOException
+     */
     private void printInCode()throws  IOException{
         PrintWriter out=new PrintWriter(new FileWriter("people.txt"));
         int[] line;
