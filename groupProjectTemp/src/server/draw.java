@@ -59,11 +59,18 @@ public class draw implements Runnable{
                             String sent = br.readLine();
                             historyOfText += sent + "\n";
                             client.close();
-                            numOfPlayer++;
+			    if (sent.contains(" has left the game :(")){
+				numOfPlayer--;
+			    } else if (sent.contains(" has joined the game!")){
+				numOfPlayer++;
+			    } 
                             if (numOfPlayer == 2){
                                 startGame();
                                 run++;
                             }
+			    if(numOfPlayer == 0){
+				historyOfText = "";
+			    }
                         } catch (IOException ex){
 
                         }
@@ -136,14 +143,14 @@ public class draw implements Runnable{
                         if (line.equals(Integer.toString(answerToStart))){
                             answerToStart = 1000000000;
                             historyOfText += "\n" + username + ":\t" + line;
-                            historyOfText += "\n\t\t\t  " + username + "'s About To Draw!\n";
+                            historyOfText += "\n\t\t\t\t" + username + "'s About To Draw!\n";
                             out.println(historyOfText);
                             out.println("yesYouDraw");
                             check = true;
                         } else if (line.equals(realAnswer)){
                             answered = true;
                             historyOfText += "\n" + username + ":\t" + line + "\n";
-                            historyOfText += "\n\t\t\t" + username + " HAS WON THE GAME!" + "\n";
+                            historyOfText += "\n\t\t\t   " + username.toUpperCase() + " HAS WON THE GAME!" + "\n";
                             gameStarted = false;
                             playagain = true;
                             winner = username;
@@ -198,9 +205,11 @@ public class draw implements Runnable{
                     if (check2 == true){
                         answered = false;
                         historyOfText = "";
-                        startGame();
-                        check2 = false;
-                        run++;
+			if (numOfPlayer >= 2){
+			    startGame();
+			    check2 = false;
+                            run++;
+			}
                     }
                 }
             } catch (Exception e){
@@ -233,7 +242,7 @@ public class draw implements Runnable{
         while(mTime < end){
             mTime = System.currentTimeMillis();
         }
-        historyOfText += "\n\t\t\t\tENJOY!!\n";
+        historyOfText += "\n\t\t\t\t           ENJOY!!\n";
         createNumb();
         gameStarted = true;
     }
@@ -245,16 +254,16 @@ public class draw implements Runnable{
         int operator = rand.nextInt(3)+1;
         if (operator == 1){
             answerToStart = numb1 + numb2;
-            String question = numb1 + " + " + numb2;
-            historyOfText += "\n\t\t   ANSWER QUESTION BELOW\n\t\t\t\t  " + question + "\n TYPE JOIN BEFORE ANSWERING!";
+            String question = numb1 + " + " + numb2; 
+            historyOfText += "\n\t\t\t    ANSWER QUESTION BELOW\n\t\t\t\t\t    " + question + "\n\t\t\t TYPE JOIN BEFORE ANSWERING!\n";
         } else if (operator == 2){
             answerToStart = numb1 - numb2;
             String question = numb1 + " - " + numb2;
-            historyOfText += "\n\t\t   ANSWER QUESTION BELOW\n\t\t\t\t  " + question + "\n TYPE JOIN BEFORE ANSWERING!";
+            historyOfText += "\n\t\t\t    ANSWER QUESTION BELOW\n\t\t\t\t\t    " + question + "\n\t\t\t TYPE JOIN BEFORE ANSWERING!\n";
         } else {
             answerToStart = numb1 * numb2;
             String question = numb1 + " x " + numb2;
-            historyOfText += "\n\t\t   ANSWER QUESTION BELOW\n\t\t\t\t  " + question + "\n TYPE JOIN BEFORE ANSWERING!";
+            historyOfText += "\n\t\t\t    ANSWER QUESTION BELOW\n\t\t\t\t\t    " + question + "\n\t\t\t TYPE JOIN BEFORE ANSWERING!\n";
         }
     }
 
@@ -264,7 +273,7 @@ public class draw implements Runnable{
             BufferedReader br = new BufferedReader(new InputStreamReader(openForAnswer.getInputStream()));
             realAnswer = br.readLine();
             char answerInChar[] = realAnswer.toCharArray();
-            historyOfText += "\n" + answerInChar.length + " characters, begins with " +
+            historyOfText += "\n\t\t\t" + answerInChar.length + " characters, begins with " +
                     Character.toUpperCase(answerInChar[0]) + " ends with " +
                     Character.toUpperCase(answerInChar[answerInChar.length-1]) + "\n";
             openForAnswer.close();

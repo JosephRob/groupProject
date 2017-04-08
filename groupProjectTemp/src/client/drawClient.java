@@ -26,27 +26,29 @@ import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import javafx.stage.WindowEvent;
 
 public class drawClient implements Runnable{
     private Canvas canvas;
     private TextArea chatArea;
     private TextField ansArea;
-    String answer;
-    String winner;
-    String hostName;
-    String playerName;
-    Thread runChat;
-    String line;
-    Boolean answered;
-    Boolean youDraww;
-    Boolean receiveIsRunning;
-    Boolean gameStarted;
-    Boolean alreadyInputAnswer;
-    Thread goReceiveDraw;
-    BorderPane display;
-    Stage primaryStage;
+    public String answer;
+    public String winner;
+    public String hostName;
+    public String playerName;
+    public Thread runChat;
+    public String line;
+    public Boolean answered;
+    public Boolean youDraww;
+    public Boolean receiveIsRunning;
+    public Boolean gameStarted;
+    public Boolean alreadyInputAnswer;
+    public Thread goReceiveDraw;
+    public BorderPane display;
+    public Stage primaryStage;
 
     public drawClient(final int  port, String IPA, String username){
+	this.playerName = username;
         this.hostName = IPA;
         answered = false;
         youDraww = false;
@@ -55,92 +57,90 @@ public class drawClient implements Runnable{
         alreadyInputAnswer = false;
         answer = "";
         winner = "";
+	primaryStage = new Stage();
         try {
             startPlay(port, IPA, username);
-        /*
-        Stage inputName = new Stage();
-        Label lab1 = new Label();
-        lab1.setText("Input Your Name");
-
-        Button but1 = new Button();
-        but1.setText("OK");
-
-        TextField tf1 = new TextField();
-
-        but1.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                playerName = tf1.getText();
-                inputName.close();
-                primaryStage.show();
-                try {
-                    startPlay();
-                    runChat.start();
-                } catch (IOException ex){}
-            }
-        });
-
-        GridPane panee = new GridPane();
-        panee.add(lab1, 0,0);
-        panee.add(tf1,0,1);
-        panee.add(but1,0,2);
-
-        Group allInput = new Group();
-        allInput.getChildren().add(panee);
-
-        inputName.setScene(new Scene(allInput, 200,150, Color.WHITE));
-        inputName.show();
-        */
-
-            Group root = new Group();
-
-            GridPane chatSys = new GridPane();
-
-            chatArea = new TextArea();
-            chatArea.setMaxWidth(300);
-            chatArea.setMinHeight(470);
-            chatArea.setEditable(false);
-
-            ansArea = new TextField();
-            ansArea.setMinHeight(30);
-            ansArea.setMinWidth(250);
-
-            Button send = new Button();
-            send.setText("Send");
-            send.setMaxHeight(30);
-            send.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    line = ansArea.getText();
-                    ansArea.setText("");
-                }
-            });
-
-            GridPane sendText = new GridPane();
-            sendText.add(ansArea,0,0);
-            sendText.add(send,1,0);
-
-            chatSys.add(chatArea,0,0);
-            chatSys.add(sendText,0,1);
-
-            display = new BorderPane();
-
-            canvas = new Canvas();
-            canvas.setHeight(500);
-            canvas.setWidth(800);
-
-            display.setLeft(canvas);
-            display.setRight(chatSys);
-
-            Scene scene = new Scene(root, 1100,500, Color.WHITE);
-
-            root.getChildren().add(display);
-            primaryStage.setTitle("Drawing " + (port-1999));
-            primaryStage.setScene(scene);
-            primaryStage.show();	
         } catch (IOException ex){
             ex.printStackTrace();
         }
+
+        Group root = new Group();
+
+        GridPane chatSys = new GridPane();
+
+        chatArea = new TextArea();
+        chatArea.setMaxWidth(425);
+        chatArea.setMinHeight(470);
+        chatArea.setEditable(false);
+
+        ansArea = new TextField();
+        ansArea.setMinHeight(30);
+        ansArea.setMinWidth(375);
+
+        Button send = new Button();
+        send.setText("Send");
+        send.setMaxHeight(30);
+        send.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                line = ansArea.getText();
+                ansArea.setText("");
+            }
+        });
+
+        GridPane sendText = new GridPane();
+        sendText.add(ansArea,0,0);
+        sendText.add(send,1,0);
+
+        chatSys.add(chatArea,0,0);
+        chatSys.add(sendText,0,1);
+
+        display = new BorderPane();
+
+        canvas = new Canvas();
+        canvas.setHeight(500);
+        canvas.setWidth(800);
+
+        display.setLeft(canvas);
+        display.setRight(chatSys);
+
+        Scene scene = new Scene(root, 1225,500, Color.WHITE);
+
+        root.getChildren().add(display);
+        primaryStage.setTitle("Drawing " + (port-1999));
+        primaryStage.setScene(scene);
+        primaryStage.show();
+	
+	primaryStage.setOnHiding(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent windowEvent) {
+                try {
+                    Socket socket = new Socket(hostName, port);
+                    PrintWriter out = new PrintWriter(socket.getOutputStream());
+                    out.println(username + " has left the game :(");
+                    out.close();
+                    socket.close();
+                }
+                catch (IOException ex){
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Socket socket = new Socket(hostName, port);
+                    PrintWriter out = new PrintWriter(socket.getOutputStream());
+                    out.println(username + " has left the game :(");
+                    out.close();
+                    socket.close();
+                }
+                catch (IOException ex){
+                    ex.printStackTrace();
+                }
+            }
+        }, "Shutdown-thread"));	
     }
 
     public void startPlay(final int port, String IPA, String username) throws IOException{
