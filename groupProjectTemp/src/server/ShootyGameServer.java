@@ -78,7 +78,7 @@ public class ShootyGameServer implements Runnable{
 
                         if (targets.isEmpty()) {
                             Random rand=new Random(System.nanoTime());
-                            for (int x = 0; x < 10; x++) {
+                            for (int x = 0; x < 30; x++) {
                                 //System.out.println(x);
                                 targets.add(new ShootyGameTarget(700 * rand.nextDouble(), 500 * rand.nextDouble(), difficulty));
                             }

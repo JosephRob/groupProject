@@ -1,24 +1,26 @@
 package client;
 
-import javafx.event.ActionEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.GridPane;
+import javafx.scene.control.Button;
 import javafx.event.EventHandler;
+import javafx.stage.WindowEvent;
+import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
+
 import java.net.Socket;
 
 /**
- * Created by lex on 16/03/17.
+ * @author Joseph
+ * @date 17/4/8
  */
 public class chatClient implements Runnable {
     int port;
@@ -29,6 +31,14 @@ public class chatClient implements Runnable {
     Button button,exit;
     boolean terminate;
 
+    /**
+     * ChatClient is the default constructor of this class.
+     * It sets up the values, threads, and GUI for the chat.
+     *
+     * @param port
+     * @param IP
+     * @param username
+     */
     public chatClient(final int port, String IP, final String username){
         terminate=false;
         this.userID=username;
@@ -123,6 +133,14 @@ public class chatClient implements Runnable {
             }
         }, "Shutdown-thread"));
     }
+
+    /**
+     * Run is overridden from the standard thread to handle the chat window, as well as sending and reciving chat
+     * contents.
+     *
+     * @see Socket
+     * @see Thread
+     */
     @Override
     public void run() {
         while(true) {

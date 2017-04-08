@@ -1,25 +1,28 @@
 package client;
 
-import javafx.application.Platform;
-import javafx.event.EventHandler;
-import javafx.fxml.FXML;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.application.Platform;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.canvas.Canvas;
+import javafx.event.EventHandler;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.scene.Group;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
+import javafx.fxml.FXML;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
+
 import java.net.Socket;
+
 import java.util.Random;
 
 /**
- * Created by lex on 16/03/17.
+ * @author Joseph
+ * @date 17/4/8
  */
 public class roomClient implements  Runnable{
     int port;
@@ -32,6 +35,13 @@ public class roomClient implements  Runnable{
     @FXML
     private Canvas base;
 
+    /**
+     * Sets up input and graphics.
+     *
+     * @param port
+     * @param IP
+     * @param username
+     */
     public roomClient(final int port, String IP, final String username){
         terminate=false;
         this.port=port;
@@ -139,6 +149,10 @@ public class roomClient implements  Runnable{
             }
         }, "Shutdown-thread"));
     }
+
+    /**
+     * Sends other player info to server, get other players from server, and displays players and their names.
+     */
     @Override
     public void run() {
         while (true) {try {
@@ -224,6 +238,12 @@ public class roomClient implements  Runnable{
         }
         catch (Exception e){System.err.println("a"+e);}}
     }
+
+    /**
+     * Draws the background of the room.
+     *
+     * @param gc
+     */
     private void drawBack(GraphicsContext gc){
         gc.setFill(Color.DEEPSKYBLUE);
         gc.fillRect(0,0,base.getWidth(),base.getHeight());

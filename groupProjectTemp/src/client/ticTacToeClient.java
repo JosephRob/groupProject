@@ -16,7 +16,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
- * Created by lex on 18/03/17.
+ * @author Joseph
+ * @date 17/4/8
  */
 public class ticTacToeClient implements Runnable {
     int port;
@@ -27,6 +28,13 @@ public class ticTacToeClient implements Runnable {
     Button[][] tiles;
     final Stage stage;
 
+    /**
+     * Initialises interface and variables.
+     *
+     * @param port
+     * @param IPA
+     * @param username
+     */
     public ticTacToeClient(final int  port, String IPA, String username){
         MenuBar top=new MenuBar();
         Menu file=new Menu("file");
@@ -99,6 +107,10 @@ public class ticTacToeClient implements Runnable {
             }
         });
     }
+
+    /**
+     * Send moves to sever ad receives current board state.
+     */
     @Override
     public void run() {
         while (true){
@@ -186,6 +198,12 @@ public class ticTacToeClient implements Runnable {
             catch (InterruptedException e){System.out.println(e);}
         }
     }
+
+    /**
+     * Checks to see if a player has won.
+     *
+     * @return  true if the game is over false if not
+     */
     public boolean over(){
         char[][]board=new char[3][3];
         for (int x=0;x<3;x++)

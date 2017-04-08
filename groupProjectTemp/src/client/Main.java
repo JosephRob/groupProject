@@ -1,31 +1,42 @@
 package client;
 
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.FXCollections;
+import javafx.application.Application;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
+import javafx.scene.control.*;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.PrintWriter;
+
 import java.net.Socket;
 
-
+/**
+ * @author Joseph
+ * @date 17/4/8
+ */
 public class Main extends Application {
-    static String IP="";
+    static String IP="localHost";
     static int userCode=-1;
     static TableView<Location> list;
     static String username;
+
+    /**
+     * Creates GUI, set initial values, and starts threads.
+     *
+     * @param primaryStage
+     * @throws Exception
+     */
     @Override
     public void start(final Stage primaryStage) throws Exception{
         primaryStage.setTitle("login");
@@ -36,7 +47,7 @@ public class Main extends Application {
         Label IPPrompt=new Label("IP adress");
         final Label answer=new Label();
         final TextField nameBox=new TextField();
-        final TextField IPBox=new TextField("localHost");//temporary staring value to make testing easier change per server
+        final TextField IPBox=new TextField(IP);//temporary staring value to make testing easier change per server
         nameBox.setPromptText("username");
         IPBox.setPromptText("IP adress");
         final PasswordField passwordBox=new PasswordField();
@@ -148,6 +159,10 @@ public class Main extends Application {
             }
         }, "Shutdown-thread"));
     }
+
+    /**
+     * BringList gets the list of servers from the main server and displays them along with their port number.
+     */
     private void bringList(){
         final ObservableList<Location> available= FXCollections.observableArrayList();
         Runnable update=new Runnable() {
@@ -265,8 +280,11 @@ public class Main extends Application {
         stage.show();
     }
 
-
-
+    /**
+     * Reads in args and determines if there is a starting value for IP otherwise it defaults to localHost.
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         if (args.length>0){
             IP=args[0];

@@ -29,7 +29,8 @@ import java.net.Socket;
 import objects.*;
 
 /**
- * Created by lex on 07/04/17.
+ * @author Joseph
+ * @date 17/4/8
  */
 public class shootyGameClient implements Runnable{
     Boolean inGame;
@@ -48,6 +49,14 @@ public class shootyGameClient implements Runnable{
     ShootyGameDude me;
     Stage stage;
 
+    /**
+     * Default contructor for shootyGameClient class.
+     * Sets up GUI and initial states of variables/
+     *
+     * @param port
+     * @param IP
+     * @param name
+     */
     public shootyGameClient(int port, String IP, String name){
         inGame=false;
         this.port=port;
@@ -176,106 +185,107 @@ public class shootyGameClient implements Runnable{
         stage.setScene(new Scene(back, 800, 500));
         stage.show();
         me=new ShootyGameDude(feild.getWidth()/2,feild.getHeight()/2);
-        Thread game=new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    while (terminate==false){
-                        Thread.sleep(100);
 
-                        Socket socket=new Socket(IP,port);
-                        ObjectInputStream in=new ObjectInputStream(socket.getInputStream());
-                        ObjectOutputStream out=new ObjectOutputStream(socket.getOutputStream());
-
-                        int state=(int)in.readObject();
-                        if (state==0) {
-
-                            ShootyGameTarget read;
-                            others.clear();
-                            while ((read = (ShootyGameTarget) in.readObject()) != null) {
-                                others.add(read);
-                            }
-                            out.writeObject(hit);
-                            hit = -1;
-                            out.writeObject(modify);
-                            modify = 0.0;
-                            out.flush();
-
-                            out.writeObject(name);
-                            out.writeObject(me);
-                            out.flush();
-                            inGame=(Boolean)in.readObject();
-
-                            final String content=in.readObject()+"";
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    gameState.setText(content);
-
-                                    GraphicsContext gc = feild.getGraphicsContext2D();
-                                    drawBack(gc);
-                                }
-                            });
-
-                            if (inGame) {
-                                ShootyGameDude temp;
-                                while ((temp = (ShootyGameDude) in.readObject()) != null) {
-                                    final ShootyGameDude drawDude = temp;
-                                    Platform.runLater(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            GraphicsContext gc = feild.getGraphicsContext2D();
-                                            gc.setFill(Color.BLUE);
-                                            gc.fillOval(drawDude.X, drawDude.Y, 20, 20);
-                                        }
-                                    });
-                                }
-                            }
-
-                            socket.close();
-
-                            move();
-
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    GraphicsContext gc = feild.getGraphicsContext2D();
-                                    drawOthers(gc);
-                                    drawDude(gc);
-                                }
-                            });
-                        }
-                        else{
-                            inGame=false;
-                            me=new ShootyGameDude(feild.getWidth()/2,feild.getHeight()/2);
-                            out.writeObject(name);
-                            out.writeObject(me);
-                            out.flush();
-
-                            final String text=in.readObject()+"";
-
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    drawBack(feild.getGraphicsContext2D());
-                                    gameState.setText(text);
-                                }
-                            });
-                        }
-                        socket.close();
-                    }
-                }
-                catch (Exception e){}
-            }
-        });
         feild.requestFocus();
-        game.start();
     }
 
+    /**
+     * Sends other player info to server, get other players from server, gets targets from server
+     */
     @Override
     public void run() {
+        try{
+            while (terminate==false){
+                Thread.sleep(100);
 
+                Socket socket=new Socket(IP,port);
+                ObjectInputStream in=new ObjectInputStream(socket.getInputStream());
+                ObjectOutputStream out=new ObjectOutputStream(socket.getOutputStream());
+
+                int state=(int)in.readObject();
+                if (state==0) {
+
+                    ShootyGameTarget read;
+                    others.clear();
+                    while ((read = (ShootyGameTarget) in.readObject()) != null) {
+                        others.add(read);
+                    }
+                    out.writeObject(hit);
+                    hit = -1;
+                    out.writeObject(modify);
+                    modify = 0.0;
+                    out.flush();
+
+                    out.writeObject(name);
+                    out.writeObject(me);
+                    out.flush();
+                    inGame=(Boolean)in.readObject();
+
+                    final String content=in.readObject()+"";
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            gameState.setText(content);
+
+                            GraphicsContext gc = feild.getGraphicsContext2D();
+                            drawBack(gc);
+                        }
+                    });
+
+                    if (inGame) {
+                        ShootyGameDude temp;
+                        while ((temp = (ShootyGameDude) in.readObject()) != null) {
+                            final ShootyGameDude drawDude = temp;
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    GraphicsContext gc = feild.getGraphicsContext2D();
+                                    gc.setFill(Color.BLUE);
+                                    gc.fillOval(drawDude.X, drawDude.Y, 20, 20);
+                                }
+                            });
+                        }
+                    }
+
+                    socket.close();
+
+                    move();
+
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            GraphicsContext gc = feild.getGraphicsContext2D();
+                            drawOthers(gc);
+                            drawDude(gc);
+                        }
+                    });
+                }
+                else{
+                    inGame=false;
+                    me=new ShootyGameDude(feild.getWidth()/2,feild.getHeight()/2);
+                    out.writeObject(name);
+                    out.writeObject(me);
+                    out.flush();
+
+                    final String text=in.readObject()+"";
+
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            drawBack(feild.getGraphicsContext2D());
+                            gameState.setText(text);
+                        }
+                    });
+                }
+                socket.close();
+            }
+        }
+        catch (Exception e){}
     }
+
+    /**
+     * moves the current player using velocity determined by existing values and keys pressed(direction)
+     */
     private void move(){
         if (inGame) {
             me.VX = (AX + 4 * me.VX) / 5;
@@ -300,15 +310,33 @@ public class shootyGameClient implements Runnable{
             }
         }
     }
+
+    /**
+     * draws empty background
+     *
+     * @param gc
+     */
     private void drawBack(GraphicsContext gc){
         gc.setFill(Color.LIGHTGRAY);
         gc.fillRect(0,0,feild.getWidth(),feild.getHeight());
     }
+
+    /**
+     * draws the set of targets
+     *
+     * @param gc
+     */
     private void drawOthers(GraphicsContext gc){
         gc.setFill(Color.RED);
         for (int x=0;x<others.size();x++)
             gc.fillOval(others.get(x).x%700-6,others.get(x).y%500-6,12,12);
     }
+
+    /**
+     * Draws current player, and diretion facing or shot(red line to target)
+     *
+     * @param gc
+     */
     private void drawDude(GraphicsContext gc){
         if(inGame) {
             gc.setFill(Color.GREEN);
@@ -332,6 +360,10 @@ public class shootyGameClient implements Runnable{
             }
         }
     }
+
+    /**
+     * checks to see if a point clicked is in side of a target
+     */
     private void hits(){
         for (int x=0;x<others.size();x++){
             if (distance(others.get(x).x+5,others.get(x).y+5,MouseX,MouseY)<6){
@@ -343,7 +375,16 @@ public class shootyGameClient implements Runnable{
             }
         }
     }
+
+    /**
+     * Calculates the distance between two points
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return  distance between points
+     */
     private double distance(double x1,double y1,double x2,double y2){
-        return Math.pow((Math.pow(x1-x2,2)+Math.pow(y1-y2,2)),0.5);
+        return Math.pow((Math.pow((x1%700)-(x2%700),2)+Math.pow((y1%500)-(y2%500),2)),0.5);
     }
 }
