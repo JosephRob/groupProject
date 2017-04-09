@@ -91,7 +91,7 @@ public class agarHandler implements Runnable{
                     OutputStream os = socket.getOutputStream();
                     objOut = new ObjectOutputStream(os);
                     synchronized (agar.foods){
-                    objOut.writeObject(agar.foods);
+                        objOut.writeObject(agar.foods);
                     }
                     objOut.flush();
                     //System.out.println("Pong");
@@ -118,6 +118,7 @@ public class agarHandler implements Runnable{
                     //Player Collision Happens Here!
                     Iterable<agarPlayer> iterablePlayers = agar.players;
                     for(agarPlayer player1: iterablePlayers){
+                        ArrayList<agarPlayer> valuesToRemove = new ArrayList<>();
                         for(agarPlayer player2: iterablePlayers){
                             double player1X = player1.getX();
                             double player1Y = player1.getY();
@@ -126,10 +127,16 @@ public class agarHandler implements Runnable{
 
                             if(player1!=player2 && CircleCollision(player1X,player1Y,player1.getSize()/2,player2X,player2Y,player2.getSize()/2)){
                                 System.out.println("Collision Happening!");
-
+                                if(player1.getSize() > player2.getSize()*1.33){
+                                    agar.players.get(agar.players.indexOf(player1)).size +=player2.getSize();
+                                    valuesToRemove.add(player2);
+                                }
 
                             }
                         }
+                        agar.players.removeAll(valuesToRemove);
+                        valuesToRemove.clear();
+
                     }
                     synchronized(agar.foods) {
                         Iterable<agarFood> iterableFood = agar.foods;
@@ -146,6 +153,7 @@ public class agarHandler implements Runnable{
 
                                 if (CircleCollision(playerX, playerY, player.getSize() / 2, foodX, foodY, food.getSize() / 2)) {
                                     System.out.println("Collision Happening!");
+
 
                                     valuesToRemove.add(food);
                                     agar.players.get(agar.players.indexOf(player)).size += 1;

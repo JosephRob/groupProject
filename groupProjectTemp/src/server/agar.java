@@ -22,7 +22,7 @@ public class agar implements Runnable  {
     public int maxFood;
 
     public agar(int port){
-        maxFood = 10;
+        maxFood = 500;
         this.port=port;
         players = new ArrayList<>();
         foods = new ArrayList<>();

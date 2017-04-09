@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -26,10 +27,9 @@ public class agarClient implements Runnable {
     public boolean terminate;
     public Stage stage;
     public BufferedWriter out;
-    //public BufferedWriter outTemp;
     public ObjectInputStream ois;
     public agarPlayer yourPlayer;
-    private  ArrayList<agarPlayer> players;
+    private ArrayList<agarPlayer> players;
     private ArrayList<agarFood> foods;
     public int index;
     public Canvas canvas;
@@ -45,6 +45,7 @@ public class agarClient implements Runnable {
     public GraphicsContext gc;
     public double camX;
     public double camY;
+    public boolean gameOver = false;
 
     public agarClient(final int  port, String IPA, String username){
         terminate=false;
@@ -56,31 +57,9 @@ public class agarClient implements Runnable {
         stage.setTitle("Agar "+(port-1999));
         players = new ArrayList<>();
 
+        initNew();
 
 
-        try {
-
-            Socket socket = new Socket(IP, port);
-            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            System.out.println("HELLO");
-
-            out.write("init"+"\n");
-            out.flush();
-            out.write(username+"\n");
-            out.flush();
-            ois = new ObjectInputStream(socket.getInputStream());
-            players = (ArrayList<objects.agarPlayer>)ois.readObject();
-            foods = new ArrayList<>();
-
-            yourPlayer = (objects.agarPlayer)ois.readObject();
-            players.add(yourPlayer);
-            index = players.indexOf(yourPlayer);
-
-            socket.close();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
 
         canvas = new Canvas(WORLD_SIZE_X, WORLD_SIZE_Y);
         Group root = new Group();
@@ -124,11 +103,50 @@ public class agarClient implements Runnable {
                 }
             }
         });
+        root.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if(gameOver== true){
+                    double mouseX = event.getX();
+                    double mouseY = event.getY();
+                    //camX-100+VIEWPORT_SIZE_X/2+50,camY-50+VIEWPORT_SIZE_Y/2+40,100,30
+                    if(mouseX > camX-100+VIEWPORT_SIZE_X/2+50 && mouseX < camX-100+VIEWPORT_SIZE_X/2+150 &&
+                            mouseY > camY-50+VIEWPORT_SIZE_Y/2+40 && mouseY < camY-50+VIEWPORT_SIZE_Y/2+70){
+                        initNew();
+
+                    }
+                }
+            }
+        });
 
 
         stage.setScene(new Scene(root,800,600));
         stage.show();
 
+    }
+    public void initNew(){
+        try {
+
+            Socket socket = new Socket(IP, port);
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+            out.write("init"+"\n");
+            out.flush();
+            out.write(username+"\n");
+            out.flush();
+            ois = new ObjectInputStream(socket.getInputStream());
+            players = (ArrayList<objects.agarPlayer>)ois.readObject();
+            foods = new ArrayList<>();
+
+            yourPlayer = (objects.agarPlayer)ois.readObject();
+            players.add(yourPlayer);
+            index = players.indexOf(yourPlayer);
+
+            socket.close();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
     public void updateShapes(){
         Platform.runLater(new Runnable() {
@@ -136,17 +154,24 @@ public class agarClient implements Runnable {
                 canvas.setTranslateX(-camX);
                 canvas.setTranslateY(-camY);
 
+
                 //gc.translate(-camX/10,-camY/10);
 
                 Iterable<agarPlayer> iterable = players;
 
 
 
-                gc.setFill(Color.BLACK);
-                gc.fillRect(0,0,1600,1200);
                 gc.setFill(Color.WHITE);
                 gc.fillRect(camX,camY,VIEWPORT_SIZE_X,VIEWPORT_SIZE_Y);
-
+                gc.setFill(Color.BLACK);
+                gc.fillRect(400,0,100,100);
+                Iterable<agarFood> iterable2 = foods;
+                for(agarFood food : iterable2){
+                    if(food.getX()>camX && food.getX()<(camX+VIEWPORT_SIZE_X) && food.getY()>camY && food.getY()<(camY+VIEWPORT_SIZE_Y)) {
+                        gc.setFill(food.color);
+                        gc.fillOval(food.getX() - food.getSize() / 2, food.getY() - food.getSize() / 2, food.getSize(), food.getSize());
+                    }
+                }
                 for (agarPlayer player : iterable) {
                     gc.setFill(player.color);
 
@@ -154,8 +179,15 @@ public class agarClient implements Runnable {
                     double playerY = player.getY()-player.getSize()/2;
 
                     if(player.getName().equals(username)) {
-                        camX = playerX - (VIEWPORT_SIZE_X/2);
-                        camY = playerY - (VIEWPORT_SIZE_Y/2);
+                        double maxSize = player.getSize();
+
+                        if(maxSize >= 100) {
+                            maxSize = 100;
+                        }
+
+                        //System.out.println(playerX);
+                        camX = (playerX+player.getSize()/2 - (VIEWPORT_SIZE_X/2));
+                        camY = (playerY+player.getSize()/2 - (VIEWPORT_SIZE_Y/2));
                         if (camX > offsetMaxX) {
                             camX = offsetMaxX;
                         }
@@ -177,13 +209,20 @@ public class agarClient implements Runnable {
                     }
 
                 }
-                Iterable<agarFood> iterable2 = foods;
-                for(agarFood food : iterable2){
-                        if(food.getX()>camX && food.getX()<(camX+VIEWPORT_SIZE_X) && food.getY()>camY && food.getY()<(camY+VIEWPORT_SIZE_Y)) {
-                            gc.fillOval(food.getX() - food.getSize() / 2, food.getY() - food.getSize() / 2, food.getSize(), food.getSize());
-                    }
+                if(gameOver == true){
+                    gc.setFill(new Color(0,0,0,0.90));
+                    gc.fillRect(camX-100+VIEWPORT_SIZE_X/2,camY-50+VIEWPORT_SIZE_Y/2,200,100);
+                    gc.setFill(new Color(1,1,1,0.90));
+                    gc.fillText("GAME OVER",camX-100+VIEWPORT_SIZE_X/2+65,camY-50+VIEWPORT_SIZE_Y/2+25);
+                    gc.setFill(new Color(0.5,0.5,0.5,0.90));
+                    gc.fillRect(camX-100+VIEWPORT_SIZE_X/2+50,camY-50+VIEWPORT_SIZE_Y/2+40,100,30);
+                    gc.setFill(new Color(1,1,1,0.90));
+                    gc.fillText("PLAY AGAIN",camX-100+VIEWPORT_SIZE_X/2+65,camY-50+VIEWPORT_SIZE_Y/2+65);
                 }
+
             }
+
+
         });
 
     }
@@ -197,6 +236,15 @@ public class agarClient implements Runnable {
             outTemp.flush();
 
             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            Iterable<agarPlayer> iterator = players;
+
+            gameOver = true;
+            for(agarPlayer player: iterator){
+                if(username.equals(player.getName())){
+                    gameOver = false;
+                    break;
+                }
+            }
 
             players = (ArrayList<objects.agarPlayer>)ois.readObject();
             socket.close();
@@ -245,7 +293,7 @@ public class agarClient implements Runnable {
             public void run() {
                 try {
                     while (true) {
-                        Thread.sleep(100);
+                        Thread.sleep(200);
                         //System.out.println("This is going still");
                         updateFoods();
 
