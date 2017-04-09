@@ -51,7 +51,7 @@ public class ticTacToe implements Runnable {
 
 
                     int check=Integer.parseInt(br.readLine());
-                    System.out.println(check);
+                    //System.out.println(check);
                     if(check==-1){
                         for (int x=0;x<3;x++){
                             for (int y=0;y<3;y++){

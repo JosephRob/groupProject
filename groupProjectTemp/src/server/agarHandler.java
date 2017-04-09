@@ -41,13 +41,13 @@ public class agarHandler implements Runnable{
                     //System.out.print(response);
 
 
-                    System.out.println("Connected!");
+                    //System.out.println("Connected!");
 
                     OutputStream os = socket.getOutputStream();
                     objOut = new ObjectOutputStream(os);
 
                     String name = in.readLine();
-                    System.out.print(name);
+                    //System.out.print(name);
                     yourPlayer = new agarPlayer(0, 0, 50, new Color(Math.random(),Math.random(),Math.random(),1), name);
                     agar.players.add(yourPlayer);
 
@@ -126,7 +126,7 @@ public class agarHandler implements Runnable{
                             double player2Y = player2.getY();
 
                             if(player1!=player2 && CircleCollision(player1X,player1Y,player1.getSize()/2,player2X,player2Y,player2.getSize()/2)){
-                                System.out.println("Collision Happening!");
+                                //System.out.println("Collision Happening!");
                                 if(player1.getSize() > player2.getSize()*1.33){
                                     agar.players.get(agar.players.indexOf(player1)).size +=player2.getSize();
                                     valuesToRemove.add(player2);
@@ -152,7 +152,7 @@ public class agarHandler implements Runnable{
                                 double foodY = food.getY();
 
                                 if (CircleCollision(playerX, playerY, player.getSize() / 2, foodX, foodY, food.getSize() / 2)) {
-                                    System.out.println("Collision Happening!");
+                                    //System.out.println("Collision Happening!");
 
 
                                     valuesToRemove.add(food);
