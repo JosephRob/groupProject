@@ -1,3 +1,7 @@
+/*
+Clyve Widjaya
+This File is for the server side of Draw game!
+*/
 package server;
 
 import javafx.application.Application;
@@ -8,6 +12,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
 
+/*
+This is the main class for draw side of Draw game!
+Thread of this class will be created from the main server file
+and the runnable thread will be the chat part of the game
+*/
 public class draw implements Runnable{
     boolean gameStarted;
     boolean check;
@@ -29,6 +38,18 @@ public class draw implements Runnable{
     ServerSocket sendTheDraw;
     ServerSocket inputDraw;
     ServerSocket chatSocket;
+
+    /*
+    This is the constructor class of the draw class
+    It will open serversocket for multiple methods such as chat, receive draw,
+    send draw, input draw. Once this function called, it will run a runnable which will
+    repeatedly accept client connection using the port given from main server. This function
+    also have 2 more runnable thread, receiveDraw, and sendDraw. ReceiveDraw will receive
+    coordinates from drawer UI, and save it. sendDraw will send coordinates to clients that 
+    are set to receive draw
+    @Param int port
+    @return - 
+    */
     public draw (int port){
         gameStarted = false;
         check = false;
@@ -127,6 +148,13 @@ public class draw implements Runnable{
         }
     }
 
+    /*
+    This is the runnable chat function, this will mostly control the game. This will receive and 
+    send new inputs from client chat and send it to all client. The function will also be the way 
+    of communicating between server and each client.
+    @Param -
+    @return - 
+    */
     public void run(){
         while(true){
             try {
@@ -218,6 +246,13 @@ public class draw implements Runnable{
         }
     }
 
+    /*
+    This function will be called if there are 2 or more people joining the draw game.
+    Once called, it will call createNumb function to create the math question and 
+    set the gameStarted to be true
+    @Param -
+    @return - 
+    */
     public void startGame(){
         long mTime = System.currentTimeMillis();
         long end = mTime + 1500;
@@ -247,6 +282,12 @@ public class draw implements Runnable{
         gameStarted = true;
     }
 
+    /*
+    This function will be called to create a question for users to answer 
+    in order to be able to draw. It will also create the answer, obviously. 
+    @Param -
+    @return - 
+    */
     public void createNumb(){
         Random rand = new Random();
         int numb1 = rand.nextInt(100)+1;
@@ -267,6 +308,13 @@ public class draw implements Runnable{
         }
     }
 
+    /*
+    This function will be called if a client answered the math question. They got the chance to draw,
+    but before drawing, client will have to input the answer of their drawing to the server. This function
+    will open a server and receive the answer and saved it.
+    @Param -
+    @return - 
+    */
     public void answerInput(){
         try{
             Socket openForAnswer = inputAnswerSocket.accept();

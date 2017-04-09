@@ -1,3 +1,7 @@
+/*
+Clyve Widjaya
+This File is for the client side of Draw game!
+*/
 package client;
 
 import javafx.application.Application;
@@ -28,6 +32,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import javafx.stage.WindowEvent;
 
+/*
+This is the main class for client side of Draw game!
+Thread of this class will be created from the main client file
+and the runnable thread will be the chat part of the game
+*/
 public class drawClient implements Runnable{
     private Canvas canvas;
     private TextArea chatArea;
@@ -46,7 +55,15 @@ public class drawClient implements Runnable{
     public Thread goReceiveDraw;
     public BorderPane display;
     public Stage primaryStage;
-
+	
+    /*
+    This is the constructor class of the drawClient class
+    It will open the UI which has canvas to draw and receive the drawing, and the chat box.
+    This function has the shutdown hook thread, so if a user is quitting the game, system will
+    tell people that he/she left and decrease the number of current player
+    @Param int port, String ipAddress, String username
+    @return - 
+    */
     public drawClient(final int  port, String IPA, String username){
 	this.playerName = username;
         this.hostName = IPA;
@@ -143,6 +160,13 @@ public class drawClient implements Runnable{
         }, "Shutdown-thread"));	
     }
 
+    /*
+    This function will open a socket with the port given from the main UI. 
+    Socket will connect to the serversocket, and tell the server that you are joining 
+    and be in the game.
+    @Param int port, String ipAddress, String username
+    @return - 
+    */
     public void startPlay(final int port, String IPA, String username) throws IOException{
         try {
             Socket joinServer = new Socket(IPA, port);
@@ -155,6 +179,14 @@ public class drawClient implements Runnable{
         }
     }
 
+    /*
+    This function is where the runnable chat run. It will constantly connect to the server
+    with different port, and this function will update most of the booleans, like gameStarted,
+    receiveIsRunning and other. When you are the one drawing and someone answered it, then the
+    canvas will be renewed.
+    @Param -
+    @return - 
+    */
     public void run(){
         while(true){
             try{
@@ -237,6 +269,14 @@ public class drawClient implements Runnable{
         }
     }
 
+    /*
+    This function will run if you are set to receive the drawing. It has a delay of 100 miliseconds.
+    This function has a runnable thread, while game is not answered, it will repeatedly connect
+    to a socket and receive coordinates. If the game is answered, canvas will be set as a new
+    canvas again
+    @Param -
+    @return - 
+    */
     public void receiveDraw() throws IOException{
         receiveIsRunning = true;
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -294,6 +334,13 @@ public class drawClient implements Runnable{
         goReceiveDraw.start();
     }
 
+    /*
+    This function will run if you answered the math question first. It will set your canvas to be
+    able for you to draw on it. First you have to input the answer of your drawing to the UI popped up
+    When there is a mouse dragged event, then it will connect to the server, and send coordinates. 
+    @Param -
+    @return - 
+    */
     public void youDraw() throws IOException{
         receiveIsRunning = true;
         youDraww = true;
