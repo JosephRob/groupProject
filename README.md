@@ -1,5 +1,9 @@
 # groupProject
 
+how to use server:
+Text input.
+For instruction use help.
+
 how to use cients:
 tictactoe:
 Once two people enter the game they can play tictactoe.
