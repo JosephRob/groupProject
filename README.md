@@ -5,6 +5,8 @@ Text input.
 For instruction use help.
 
 how to use cients:
+login with account test,test or register a new account then pick from avalible servers
+
 tictactoe:
 Once two people enter the game they can play tictactoe.
 If an extra person tries to enter they will be bocked.
