@@ -1,3 +1,6 @@
+//Joseph Robertson
+//Justin Duong
+//Clyve Widjaya
 /*
 Clyve Widjaya
 This File is for the server side of Draw game!
