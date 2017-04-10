@@ -1,3 +1,6 @@
+//Joseph Robertson
+//Justin Duong
+//Clyve Widjaya
 package client;
 
 import javafx.scene.control.cell.PropertyValueFactory;
