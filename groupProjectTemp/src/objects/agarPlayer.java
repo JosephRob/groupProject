@@ -1,3 +1,6 @@
+//Joseph Robertson
+//Justin Duong
+//Clyve Widjaya
 package objects;
 
 import javafx.scene.paint.Color;
